@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CIA Bucks</title>
+<link rel="stylesheet" href="assets/styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>&#128176;</text></svg>">
+</head>
+<body>
+
+<!-- ------------------------------------------------------------ sign in -->
+<section id="gate" class="gate">
+  <div class="gate-inner">
+    <div id="gate-seal"></div>
+    <h1>CIA Bucks<em>Top Farmers Agent</em></h1>
+    <div class="rule"></div>
+    <p>Spin the wheel, collect your bucks, watch the balance climb. Every deposit is on the books.</p>
+    <div id="gate-error" class="notice"></div>
+    <div id="gsi-button"></div>
+    <p class="fineprint">
+      Sign in with your <b id="domain-label">@topfarmersagent.com</b> account.<br>
+      Personal Gmail accounts will be turned away.
+    </p>
+  </div>
+</section>
+
+<!-- --------------------------------------------------------------- app -->
+<header id="masthead" class="masthead hidden">
+  <div id="mast-seal"></div>
+  <div class="wordmark"><b>CIA Bucks</b><span>Top Farmers Agent</span></div>
+  <nav>
+    <a id="admin-link" class="btn btn-sm hidden" href="admin.html">Admin</a>
+    <button id="sign-out" class="btn btn-sm">Sign out</button>
+    <div class="who">
+      <img id="avatar" alt="" hidden>
+      <small id="whoami"></small>
+    </div>
+  </nav>
+</header>
+
+<main id="app" class="hidden">
+  <div id="msg" class="notice"></div>
+
+  <div class="floor">
+    <!-- left: the note + ledger -->
+    <div>
+      <p class="eyebrow">Your bank</p>
+
+      <div class="note">
+        <div class="note-top">
+          <p class="eyebrow">CIA Bucks &middot; on deposit</p>
+          <span class="note-serial" id="serial">TFA 0000 000</span>
+        </div>
+        <div class="amount"><sup>$</sup><span id="balance">0</span></div>
+        <div class="note-words" id="balance-words">Zero bucks and no cents</div>
+        <dl class="note-foot">
+          <div><dt>Spins</dt><dd id="spin-count">0</dd></div>
+          <div><dt>Last deposit</dt><dd id="last-deposit">—</dd></div>
+          <div><dt>Member since</dt><dd id="member-since">—</dd></div>
+        </dl>
+        <div class="stamp" id="stamp">Deposited</div>
+      </div>
+
+      <section class="ledger">
+        <h2>Deposit history</h2>
+        <table>
+          <thead><tr>
+            <th>Date</th><th>Entry</th><th class="num">Amount</th><th class="num">Balance</th>
+          </tr></thead>
+          <tbody id="ledger-body"></tbody>
+        </table>
+        <p id="ledger-empty" class="empty hidden">Nothing on the books yet. Take your first spin.</p>
+      </section>
+    </div>
+
+    <!-- right: the wheel -->
+    <div class="stage">
+      <p class="eyebrow">The wheel</p>
+      <div class="wheel-wrap">
+        <svg class="pointer" width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
+          <path d="M15 27 L4 4 L26 4 Z" fill="#c9a227" stroke="#081321" stroke-width="1.5"/>
+        </svg>
+        <div id="wheel-host"></div>
+      </div>
+      <button id="spin" class="btn btn-solid spin-btn" disabled>Spin</button>
+      <p class="spin-status" id="spin-status">Loading your account…</p>
+    </div>
+  </div>
+</main>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="assets/config.js"></script>
+<script src="assets/common.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

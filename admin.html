@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CIA Bucks — Admin</title>
+<link rel="stylesheet" href="assets/styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>&#128176;</text></svg>">
+</head>
+<body>
+
+<section id="gate" class="gate">
+  <div class="gate-inner">
+    <div id="gate-seal"></div>
+    <h1>Admin<em>CIA Bucks</em></h1>
+    <div class="rule"></div>
+    <p>Sign in with an admin account to manage members, balances and program settings.</p>
+    <div id="gate-error" class="notice"></div>
+    <div id="gsi-button"></div>
+    <p class="fineprint"><a href="index.html" style="color:inherit">Back to the wheel</a></p>
+  </div>
+</section>
+
+<header id="masthead" class="masthead hidden">
+  <div id="mast-seal"></div>
+  <div class="wordmark"><b>CIA Bucks</b><span>Admin</span></div>
+  <nav>
+    <a class="btn btn-sm" href="index.html">The wheel</a>
+    <button id="sign-out" class="btn btn-sm">Sign out</button>
+    <div class="who"><small id="whoami"></small></div>
+  </nav>
+</header>
+
+<main id="app" class="hidden">
+  <div id="msg" class="notice"></div>
+
+  <p class="eyebrow">Program at a glance</p>
+  <dl class="tiles">
+    <div class="tile"><dt>Bucks issued</dt><dd id="t-issued">$0</dd></div>
+    <div class="tile"><dt>Members</dt><dd id="t-members">0</dd></div>
+    <div class="tile"><dt>Total spins</dt><dd id="t-spins">0</dd></div>
+    <div class="tile"><dt>Average bank</dt><dd id="t-avg">$0</dd></div>
+  </dl>
+
+  <div class="panels">
+    <section class="panel">
+      <h2>Adjust a balance</h2>
+      <div class="form-grid">
+        <div style="grid-column:1/-1">
+          <label for="adj-email">Member</label>
+          <select id="adj-email"></select>
+        </div>
+        <div><label for="adj-amount">Amount</label><input id="adj-amount" type="number" step="1" placeholder="25 or -25"></div>
+        <div><label for="adj-note">Reason</label><input id="adj-note" placeholder="Contest payout"></div>
+      </div>
+      <button id="adj-go" class="btn btn-solid">Post adjustment</button>
+      <p class="fineprint">Positive adds bucks, negative takes them away. Every adjustment is signed with your name in the ledger.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Admins</h2>
+      <div class="form-row">
+        <div><label for="new-admin">Add an admin by email</label><input id="new-admin" type="email" placeholder="name@topfarmersagent.com"></div>
+        <button id="add-admin" class="btn">Add</button>
+      </div>
+      <div id="admin-chips" class="chip-list"></div>
+      <p class="fineprint">Admins can sign in from any domain. The owner account is permanent.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Program settings</h2>
+      <div class="form-grid">
+        <div><label for="cfg-spinsAllowed">Spinning</label>
+          <select id="cfg-spinsAllowed"><option value="true">Open</option><option value="false">Paused</option></select></div>
+        <div><label for="cfg-cooldownSeconds">Wait between spins</label>
+          <select id="cfg-cooldownSeconds">
+            <option value="0">No wait</option><option value="3600">1 hour</option>
+            <option value="43200">12 hours</option><option value="86400">24 hours</option>
+            <option value="604800">7 days</option>
+          </select></div>
+        <div><label for="cfg-allowedDomain">Allowed domain</label><input id="cfg-allowedDomain"></div>
+      </div>
+      <p class="eyebrow" style="margin-top:6px">Odds</p>
+      <div class="form-grid">
+        <div><label for="cfg-weight5">$5 weight</label><input id="cfg-weight5" type="number" min="0"></div>
+        <div><label for="cfg-weight10">$10 weight</label><input id="cfg-weight10" type="number" min="0"></div>
+        <div><label for="cfg-weight20">$20 weight</label><input id="cfg-weight20" type="number" min="0"></div>
+      </div>
+      <p class="fineprint" id="odds-preview"></p>
+      <button id="save-config" class="btn btn-solid">Save settings</button>
+    </section>
+
+    <section class="panel wide">
+      <h2>Members</h2>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Member</th><th>Email</th><th class="num">Spins</th><th class="num">Balance</th><th>Last spin</th></tr></thead>
+          <tbody id="members-body"></tbody>
+        </table>
+      </div>
+      <p id="members-empty" class="empty hidden">No one has signed in yet.</p>
+    </section>
+
+    <section class="panel wide">
+      <h2>Full ledger</h2>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Date</th><th>Member</th><th>Entry</th><th class="num">Amount</th><th class="num">Balance</th><th>By</th></tr></thead>
+          <tbody id="log-body"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="assets/config.js"></script>
+<script src="assets/common.js"></script>
+<script src="assets/admin.js"></script>
+</body>
+</html>
