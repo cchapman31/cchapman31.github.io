@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CIA Bucks — Transactions</title>
+<link rel="stylesheet" href="assets/styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>&#128176;</text></svg>">
+</head>
+<body>
+
+<section id="gate" class="gate">
+  <div class="gate-inner">
+    <div id="gate-seal"></div>
+    <h1>Transactions<em>CIA Bucks</em></h1>
+    <div class="rule"></div>
+    <p>Sign in with an admin account to move bucks and award baseballs.</p>
+    <div id="gate-error" class="notice"></div>
+    <div id="gsi-button"></div>
+    <p class="fineprint"><a href="index.html" style="color:inherit">Back to the wheel</a></p>
+  </div>
+</section>
+
+<header id="masthead" class="masthead hidden">
+  <div id="mast-seal"></div>
+  <div class="wordmark"><b>CIA Bucks</b><span>Transactions</span></div>
+  <nav>
+    <a class="btn btn-sm" href="index.html">The wheel</a>
+    <a class="btn btn-sm" href="admin.html">Admin</a>
+    <button id="sign-out" class="btn btn-sm">Sign out</button>
+    <div class="who"><small id="whoami"></small></div>
+  </nav>
+</header>
+
+<main id="app" class="hidden">
+  <div id="msg" class="notice"></div>
+
+  <div class="panels">
+    <section class="panel">
+      <h2>New transaction</h2>
+      <div style="margin-bottom:12px">
+        <label for="txn-email">Member</label>
+        <select id="txn-email"></select>
+      </div>
+      <p class="holdings" id="holdings"></p>
+      <div class="form-grid">
+        <div><label for="txn-kind">Type</label>
+          <select id="txn-kind">
+            <option value="bucks">CIA Bucks ($)</option>
+            <option value="baseballs">Baseballs ⚾</option>
+          </select></div>
+        <div><label for="txn-amount">Amount</label>
+          <input id="txn-amount" type="number" step="1" placeholder="25 or -25"></div>
+        <div style="grid-column:1/-1"><label for="txn-note">Reason</label>
+          <input id="txn-note" placeholder="Contest payout"></div>
+      </div>
+      <button id="txn-go" class="btn btn-solid">Post transaction</button>
+      <p class="fineprint">Positive adds, negative removes. Baseballs are Home Run Awards —
+        3 baseballs equal $2,500 toward an experience. Every transaction is signed with your name below.</p>
+    </section>
+
+    <section class="panel">
+      <h2>How it works</h2>
+      <p class="explain">Bucks are the wheel currency and show up in a member's bank balance.
+        Baseballs are a separate award you grant by hand — they appear as icons on the bank slip
+        and don't touch the bucks balance.</p>
+      <p class="explain">Use the log below to see every bucks and baseball move. Wheel spins and
+        stat entries are tracked on the Admin page instead, so this stays a clean record of the
+        rewards you hand out.</p>
+    </section>
+
+    <section class="panel wide">
+      <h2>Transaction log</h2>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Date</th><th>Member</th><th>Type</th><th class="num">Amount</th><th class="num">After</th><th>By</th><th>Reason</th></tr></thead>
+          <tbody id="txn-log-body"></tbody>
+        </table>
+      </div>
+      <p id="txn-empty" class="empty hidden">No bucks or baseball transactions yet.</p>
+    </section>
+  </div>
+</main>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="assets/config.js"></script>
+<script src="assets/common.js"></script>
+<script src="assets/transactions.js"></script>
+</body>
+</html>
