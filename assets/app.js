@@ -222,6 +222,7 @@ async function loadSession() {
 }
 
 function showGate(message) {
+  mountSignIn(() => loadSession());     // set up Google Sign-In only when we actually need it
   $('gate').classList.remove('hidden');
   $('masthead').classList.add('hidden');
   $('app').classList.add('hidden');
@@ -280,5 +281,6 @@ document.getElementById('mast-seal').innerHTML = rosetteSVG(38, '#c9a227', .85).
 $('domain-label').textContent = '@' + CFG.ALLOWED_DOMAIN;
 buildWheel();
 
-mountSignIn(() => loadSession());
+// If we already hold a token, load straight in without touching Google's login UI.
+// showGate() will set up sign-in only if that token turns out to be missing or expired.
 if (hasToken()) loadSession(); else showGate('');

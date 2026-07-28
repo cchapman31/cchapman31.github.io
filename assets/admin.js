@@ -101,6 +101,7 @@ async function boot() {
 }
 
 function showGate(message) {
+  mountSignIn(() => boot());     // set up Google Sign-In only when we actually need it
   $('gate').classList.remove('hidden');
   $('masthead').classList.add('hidden');
   $('app').classList.add('hidden');
@@ -169,5 +170,5 @@ $('sign-out').addEventListener('click', () => { signOut(); location.href = 'inde
 $('gate-seal').innerHTML = rosetteSVG(132, '#c9a227', .6);
 $('mast-seal').innerHTML = rosetteSVG(38, '#c9a227', .85).replace('class="rosette"', 'class="seal"');
 
-mountSignIn(() => boot());
+// If we already hold a token, load straight in without touching Google's login UI.
 if (hasToken()) boot(); else showGate('');

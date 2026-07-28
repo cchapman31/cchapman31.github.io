@@ -35,8 +35,13 @@ function signOut() {
 
 /**
  * Renders the Google button into #gsi-button and calls onToken(jwt) on success.
+ * Safe to call more than once — it only initializes Google Sign-In the first time.
  */
+let signInMounted = false;
 function mountSignIn(onToken) {
+  if (signInMounted) return;
+  signInMounted = true;
+
   const ready = setInterval(() => {
     if (!window.google?.accounts?.id) return;
     clearInterval(ready);
@@ -44,6 +49,7 @@ function mountSignIn(onToken) {
     google.accounts.id.initialize({
       client_id: CFG.GOOGLE_CLIENT_ID,
       hd: CFG.ALLOWED_DOMAIN,          // hints Google to show work accounts first
+      auto_select: false,              // never sign in silently on load
       callback: (r) => {
         sessionStorage.setItem(TOKEN_KEY, r.credential);
         onToken(r.credential);
