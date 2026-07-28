@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;0,6..96,900;1,6..96,400&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&display=swap');
 
 :root {
   --vault: #0c1a2b;
@@ -12,9 +12,9 @@
   --gold: #c9a227;
   --gold-lit: #e8c65a;
   --stamp: #a53a2e;
-  --display: 'Bodoni Moda', Georgia, serif;
-  --body: 'Archivo', system-ui, sans-serif;
-  --mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --display: 'Montserrat', system-ui, sans-serif;
+  --body: 'Montserrat', system-ui, sans-serif;
+  --mono: 'Montserrat', system-ui, sans-serif;
 }
 
 * { box-sizing: border-box; }
@@ -170,6 +170,20 @@ label {
 .amount sup { font-size: .38em; vertical-align: super; font-weight: 700; margin-right: .06em; }
 .note-words { font-family: var(--display); font-style: italic; font-size: 15px; color: var(--green); }
 
+.note-awards { margin-top: 18px; }
+.awards-label {
+  display: block; font-family: var(--mono); font-size: 9.5px; letter-spacing: .16em;
+  text-transform: uppercase; color: rgba(22,40,62,.55); margin-bottom: 8px;
+}
+.awards-icons { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.awards-set { display: inline-flex; gap: 4px; }
+.awards-more { font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--stamp); align-self: center; }
+.awards-cap {
+  display: block; margin-top: 9px; font-family: var(--mono); font-size: 10.5px;
+  color: var(--green); letter-spacing: .02em; font-weight: 600;
+}
+.bball { display: block; }
+
 .note-foot {
   display: flex; gap: 22px; margin-top: 20px; padding-top: 14px;
   border-top: 1px solid rgba(46,125,91,.32);
@@ -261,6 +275,12 @@ tbody tr:hover { background: rgba(255,255,255,.028); }
 .chip.locked { border-color: rgba(201,162,39,.45); color: var(--gold-lit); }
 
 .hidden { display: none !important; }
+
+.holdings {
+  font-family: var(--mono); font-size: 12.5px; color: var(--gold-lit);
+  margin: 0 0 14px; min-height: 18px;
+}
+.explain { font-size: 13.5px; line-height: 1.65; color: rgba(239,233,216,.72); margin: 0 0 14px; }
 
 @media (prefers-reduced-motion: reduce) {
   .stamp { transition: opacity .2s; }

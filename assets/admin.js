@@ -20,6 +20,7 @@ function renderOverview(d) {
   $('t-members').textContent = d.totals.members;
   $('t-spins').textContent   = d.totals.spinsUsed;
   $('t-out').textContent     = d.totals.spinsOut;
+  $('t-baseballs').textContent = d.totals.baseballs;
 
   // members table
   $('members-empty').classList.toggle('hidden', d.users.length > 0);
@@ -29,6 +30,7 @@ function renderOverview(d) {
       <td class="muted">${esc(u.email)}</td>
       <td class="num">${u.transfers}</td>
       <td class="num">${u.occs}</td>
+      <td class="num" style="color:var(--stamp)">${u.baseballs}</td>
       <td class="num" style="color:var(--gold-lit)">${u.spinsAvailable}</td>
       <td class="num muted">${u.spinsUsed}</td>
       <td class="num" style="color:var(--gold-lit);font-weight:600">${money(u.balance)}</td>

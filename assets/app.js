@@ -33,7 +33,7 @@ function buildWheel() {
             fill="${fill}" stroke="#081321" stroke-width="1.5"/>
       <text x="${tx}" y="${ty}" transform="rotate(${mid} ${tx} ${ty})"
             text-anchor="middle" dominant-baseline="central"
-            font-family="'Bodoni Moda', Georgia, serif" font-weight="900"
+            font-family="'Montserrat', sans-serif" font-weight="900"
             font-size="${value === 20 ? 42 : 36}" fill="${text}">$${value}</text>`;
   }).join('');
 
@@ -52,7 +52,7 @@ function buildWheel() {
           <path d="${rosettePath(100, 100, 84, 31, 46)}" fill="none" stroke="#c9a227" stroke-width="1.6" opacity=".85"/>
         </g>
         <text x="200" y="203" text-anchor="middle" dominant-baseline="central"
-              font-family="'IBM Plex Mono', monospace" font-size="13"
+              font-family="'Montserrat', sans-serif" font-size="13"
               letter-spacing="3" fill="#e8c65a">CIA</text>
       </g>
     </svg>`;
@@ -148,7 +148,8 @@ function setBalance(value, animate = false) {
 const LABELS = { spin: 'Wheel spin', credit: 'Manual credit', debit: 'Manual debit', 'admin-add': 'Made admin', 'admin-remove': 'Admin removed' };
 
 function renderLedger(entries) {
-  const rows = entries.filter(e => e.amount !== 0);
+  const bucksTypes = ['spin', 'credit', 'debit'];
+  const rows = entries.filter(e => bucksTypes.includes(e.type) && e.amount !== 0);
   $('ledger-empty').classList.toggle('hidden', rows.length > 0);
   $('ledger-body').innerHTML = rows.map(e => `
     <tr>
@@ -170,6 +171,36 @@ function earnedFrom(transfers, occs) {
   const o = Math.max(0, Math.floor(Number(occs) || 0));
   const fromT = t >= RULES.transferThreshold ? (t - RULES.transferThreshold + 1) : 0;
   return fromT + o * RULES.occSpins;
+}
+
+function renderBaseballs(count) {
+  count = Math.max(0, Math.floor(count || 0));
+  const host = $('awards-icons'), cap = $('awards-cap');
+  if (!host || !cap) return;
+
+  const set = (slots) => `<span class="awards-set">${slots.map(f => baseballSVG(f)).join('')}</span>`;
+
+  if (count === 0) {
+    host.innerHTML = set([false, false, false]);
+    cap.textContent = '3 baseballs = $2,500 experience';
+    return;
+  }
+
+  const MAX = 12;
+  const shown = Math.min(count, MAX);
+  let html = '';
+  for (let i = 0; i < shown; i += 3) {
+    html += set([0, 1, 2].map(j => i + j < shown));
+  }
+  if (count > MAX) html += `<span class="awards-more">+${count - MAX}</span>`;
+  host.innerHTML = html;
+
+  const unlocked = Math.floor(count / 3) * 2500;
+  const rem = count % 3;
+  const toNext = rem === 0 ? 3 : 3 - rem;
+  cap.textContent = unlocked > 0
+    ? `${money(unlocked)} unlocked · ${toNext} more for the next $2,500`
+    : `${toNext} more baseball${toNext === 1 ? '' : 's'} for a $2,500 experience`;
 }
 
 function updateSpinButton() {
@@ -227,12 +258,16 @@ function applySession(data) {
   $('whoami').textContent = u.email;
   if (u.picture) { $('avatar').src = u.picture; $('avatar').hidden = false; }
   $('admin-link').classList.toggle('hidden', !u.isAdmin);
+  const txnLink = $('txn-link');
+  if (txnLink) txnLink.classList.toggle('hidden', !u.isAdmin);
 
   $('serial').textContent = serialFor(u.email);
   $('spin-count').textContent = u.spinsUsed;
   setBalance(u.balance);
+  renderBaseballs(u.baseballs);
 
-  const deposits = data.entries.filter(e => e.amount !== 0);
+  const bucksTypes = ['spin', 'credit', 'debit'];
+  const deposits = data.entries.filter(e => bucksTypes.includes(e.type));
   $('last-deposit').textContent = deposits.length ? when(deposits[0].at).split(' ').slice(0, 2).join(' ') : '—';
   $('member-since').textContent = u.joinedAt
     ? new Date(u.joinedAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })

@@ -88,6 +88,17 @@ function rosetteSVG(size, stroke, opacity = 0.55) {
   </svg>`;
 }
 
+/** Baseball outline icon. `earned` fills it in the stamp red; otherwise a faint ghost slot. */
+function baseballSVG(earned, size = 18) {
+  const stroke = earned ? '#a53a2e' : 'rgba(22,40,62,.26)';
+  const fill   = earned ? 'rgba(165,58,46,.10)' : 'transparent';
+  return `<svg class="bball" viewBox="0 0 24 24" width="${size}" height="${size}" aria-hidden="true">
+    <circle cx="12" cy="12" r="9" fill="${fill}" stroke="${stroke}" stroke-width="1.4"/>
+    <path d="M6.4 5.4 Q10 12 6.4 18.6" fill="none" stroke="${stroke}" stroke-width="1" stroke-linecap="round"/>
+    <path d="M17.6 5.4 Q14 12 17.6 18.6" fill="none" stroke="${stroke}" stroke-width="1" stroke-linecap="round"/>
+  </svg>`;
+}
+
 /* ---------------------------------------------------------------- format */
 
 const money = (n) => '$' + Number(n || 0).toLocaleString('en-US');
