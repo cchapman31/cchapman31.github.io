@@ -14,10 +14,11 @@ bucks and baseballs, add other admins, tune the odds, and review everyone's stat
 ## Baseballs (Home Run Awards)
 
 Baseballs are separate from CIA Bucks. Bucks are the wheel currency and sit in a member's
-bank balance; baseballs are an award an admin grants by hand on the **Transactions** page.
-They show up as outline icons on the member's bank slip, grouped in threes, with a caption
-that tracks progress — every 3 baseballs is $2,500 toward an experience. Baseballs never
-touch the bucks balance; the $2,500 is honoured however you decide to honour it.
+bank balance; baseballs are an award an admin grants by hand on the **Transactions** page or
+the **Award baseballs** panel on the Admin page. They show up as outline icons on the
+member's bank slip, and every completed set of 3 is boxed together to show it's a full
+$2,500 award. Baseballs never touch the bucks balance; the $2,500 is honoured however you
+decide to honour it.
 
 ## Earning spins
 
@@ -116,6 +117,18 @@ domain. To change the member domain later, use **Allowed domain** in the admin s
 convert to spins by the rules above. The wheel is disabled until they have spins to spend.
 If someone fat-fingers their numbers, an admin can hit **Re-log** next to their name in the
 Members table to let them enter the day again — spins already earned that day stay put.
+
+**Spinning many at once.** When a member has more than 10 spins ready, a **Spin all** button
+appears next to the wheel. It spins the whole balance in one server-side batch and shows the
+breakdown (e.g. "14 spins → $145 in CIA Bucks! (6×$5, 5×$10, 3×$20)"). Single spins still
+work one at a time below that.
+
+**Sound and confetti.** Spins play a decelerating tick and wins play a rising chime, both
+synthesized in the browser (no audio files, so nothing extra to host). A **Sound on/off**
+toggle under the wheel mutes them, remembered per device. Every win throws confetti; the
+amount is set by the admin **Confetti intensity (0–100)** setting — 0 is off, 100 is
+deliberately excessive. Big and multi-spin wins scale the burst up automatically. Members
+with reduced-motion enabled in their OS get a gentle amount regardless.
 
 **Moving bucks and baseballs.** The **Transactions** page (`transactions.html`, admin only,
 linked from the header) is the dedicated place to add or remove CIA Bucks and award or take
