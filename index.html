@@ -8,7 +8,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>&#128176;</text></svg>">
 </head>
 <body>
-<canvas id="confetti-canvas" aria-hidden="true"></canvas>
+<canvas id="confetti-canvas" aria-hidden="true" style="position:fixed;inset:0;pointer-events:none;z-index:60"></canvas>
 
 <!-- ------------------------------------------------------------ sign in -->
 <section id="gate" class="gate">
@@ -106,6 +106,18 @@
           <tbody id="ledger-body"></tbody>
         </table>
         <p id="ledger-empty" class="empty hidden">Nothing on the books yet. Take your first spin.</p>
+      </section>
+
+      <section class="ledger hidden" id="team-panel">
+        <h2>Your team</h2>
+        <p class="fineprint" style="margin-top:-6px">Trigger a re-log so a teammate can enter today's stats again. Spins they already earned today stay.</p>
+        <div class="scroll" style="max-height:340px">
+          <table>
+            <thead><tr><th>Member</th><th>Today's stats</th><th></th></tr></thead>
+            <tbody id="team-body"></tbody>
+          </table>
+        </div>
+        <p id="team-empty" class="empty hidden">No teammates have signed in yet.</p>
       </section>
     </div>
 
