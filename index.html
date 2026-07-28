@@ -43,9 +43,34 @@
   <div id="msg" class="notice"></div>
 
   <div class="floor">
-    <!-- left: the note + ledger -->
+    <!-- left: stats + note + ledger -->
     <div>
-      <p class="eyebrow">Your bank</p>
+      <p class="eyebrow">Daily stats</p>
+
+      <section class="stats-card" id="stats-card">
+        <div id="stats-entry">
+          <div class="stat-inputs">
+            <div><label for="in-transfers">Transfers</label>
+              <input id="in-transfers" type="number" min="0" step="1" inputmode="numeric" placeholder="0"></div>
+            <div><label for="in-occs">One-Call-Closes</label>
+              <input id="in-occs" type="number" min="0" step="1" inputmode="numeric" placeholder="0"></div>
+          </div>
+          <p class="earn-preview" id="earn-preview"></p>
+          <button id="submit-stats" class="btn btn-solid">Log stats &amp; earn spins</button>
+          <p class="fineprint" id="rules-note">Log once a day. Spins are only earned here.</p>
+        </div>
+        <div id="stats-done" class="hidden">
+          <p class="done-lead">Today's numbers are in.</p>
+          <dl class="done-grid">
+            <div><dt>Transfers</dt><dd id="done-transfers">0</dd></div>
+            <div><dt>OCCs</dt><dd id="done-occs">0</dd></div>
+            <div><dt>Spins earned</dt><dd id="done-earned" class="lit">0</dd></div>
+          </dl>
+          <p class="fineprint">New stats unlock tomorrow. Spend your spins on the wheel.</p>
+        </div>
+      </section>
+
+      <p class="eyebrow" style="margin-top:34px">Your bank</p>
 
       <div class="note">
         <div class="note-top">
@@ -55,7 +80,7 @@
         <div class="amount"><sup>$</sup><span id="balance">0</span></div>
         <div class="note-words" id="balance-words">Zero bucks and no cents</div>
         <dl class="note-foot">
-          <div><dt>Spins</dt><dd id="spin-count">0</dd></div>
+          <div><dt>Spins taken</dt><dd id="spin-count">0</dd></div>
           <div><dt>Last deposit</dt><dd id="last-deposit">—</dd></div>
           <div><dt>Member since</dt><dd id="member-since">—</dd></div>
         </dl>
@@ -83,6 +108,7 @@
         </svg>
         <div id="wheel-host"></div>
       </div>
+      <div class="spins-ready" id="spins-ready"><b id="spins-count">0</b> spins ready</div>
       <button id="spin" class="btn btn-solid spin-btn" disabled>Spin</button>
       <p class="spin-status" id="spin-status">Loading your account…</p>
     </div>
