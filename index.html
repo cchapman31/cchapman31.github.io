@@ -8,6 +8,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>&#128176;</text></svg>">
 </head>
 <body>
+<canvas id="confetti-canvas" aria-hidden="true"></canvas>
 
 <!-- ------------------------------------------------------------ sign in -->
 <section id="gate" class="gate">
@@ -119,7 +120,9 @@
       </div>
       <div class="spins-ready" id="spins-ready"><b id="spins-count">0</b> spins ready</div>
       <button id="spin" class="btn btn-solid spin-btn" disabled>Spin</button>
+      <button id="spin-all" class="btn spin-all-btn hidden">Spin all</button>
       <p class="spin-status" id="spin-status">Loading your account…</p>
+      <button id="mute" class="mute-btn">Sound on</button>
     </div>
   </div>
 </main>
