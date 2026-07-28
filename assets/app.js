@@ -357,7 +357,7 @@ on('spin', 'click', async () => {
     say($('msg'), `${money(result.prize)} in CIA Bucks landed in your bank.`, 'good');
 
     Sound.win(result.prize >= 20 ? 6 : result.prize >= 10 ? 3 : 1);
-    Confetti.launch(confettiIntensity, result.prize === 20 ? 1.8 : result.prize === 10 ? 1.1 : 0.7);
+    Confetti.launch(confettiIntensity, result.prize === 20 ? 2.4 : result.prize === 10 ? 1.5 : 1.1);
 
     spinsReady = result.spinsAvailable;
     updateSpinButton();
@@ -407,7 +407,7 @@ on('spin-all', 'click', async () => {
     say($('msg'), `${res.n} spins → ${money(res.total)} in CIA Bucks! (${parts.join(', ')})`, 'good');
 
     Sound.win(res.n);
-    Confetti.launch(confettiIntensity, Math.min(3.5, 1.4 + res.n / 8));
+    Confetti.launch(confettiIntensity, Math.min(4, 2 + res.n / 6));
 
     spinsReady = res.spinsAvailable;
     updateSpinButton();

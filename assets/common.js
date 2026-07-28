@@ -188,7 +188,7 @@ const Sound = {
 
 const Confetti = {
   canvas: null, ctx: null, particles: [], running: false,
-  colors: ['#c9a227', '#e8c65a', '#2e7d5b', '#4bb185', '#a53a2e', '#efe9d8'],
+  colors: ['#c9a227', '#e8c65a', '#2e7d5b', '#4bb185', '#a53a2e', '#efe9d8', '#ffffff'],
 
   ensure() {
     if (this.canvas) return;
@@ -199,6 +199,12 @@ const Confetti = {
       c.setAttribute('aria-hidden', 'true');
       document.body.appendChild(c);
     }
+    // Set positioning inline so the canvas can never affect page layout,
+    // even if an older cached stylesheet is missing the #confetti-canvas rule.
+    c.style.position = 'fixed';
+    c.style.inset = '0';
+    c.style.pointerEvents = 'none';
+    c.style.zIndex = '60';
     this.canvas = c; this.ctx = c.getContext('2d');
     this.resize();
     window.addEventListener('resize', () => this.resize());
@@ -210,47 +216,104 @@ const Confetti = {
     this.canvas.height = window.innerHeight;
   },
 
+  push(p) {
+    if (this.particles.length >= 6000) return;   // hard safety cap
+    p.life = 0;
+    p.max = p.max || (150 + Math.random() * 120);
+    p.g = p.g != null ? p.g : (0.10 + Math.random() * 0.08);
+    p.vr = (Math.random() - 0.5) * 0.4;
+    p.rot = Math.random() * Math.PI * 2;
+    p.size = p.size || (5 + Math.random() * 8);
+    p.streamer = Math.random() < 0.25;
+    p.color = p.color || this.colors[(Math.random() * this.colors.length) | 0];
+    this.particles.push(p);
+  },
+
+  // rain falling from above, spread across the whole width
+  rain(n, I) {
+    const W = this.canvas.width;
+    for (let i = 0; i < n; i++) {
+      this.push({
+        x: Math.random() * W, y: -20 - Math.random() * 60,
+        vx: (Math.random() - 0.5) * 5,
+        vy: 3 + Math.random() * 6 + I * 4
+      });
+    }
+  },
+
+  // a popper firing up-and-inward from a bottom corner
+  cannon(side, n, power) {
+    const W = this.canvas.width, H = this.canvas.height;
+    const x = side < 0 ? -10 : W + 10;
+    const base = side < 0 ? -Math.PI / 3.1 : (-Math.PI + Math.PI / 3.1);
+    for (let i = 0; i < n; i++) {
+      const a = base + (Math.random() - 0.5) * 0.7;
+      const speed = power * (0.6 + Math.random() * 0.8);
+      this.push({
+        x, y: H * (0.72 + Math.random() * 0.2),
+        vx: Math.cos(a) * speed,
+        vy: Math.sin(a) * speed,
+        g: 0.16 + Math.random() * 0.08,
+        max: 180 + Math.random() * 120
+      });
+    }
+  },
+
   launch(intensity = 60, scale = 1) {
     intensity = Math.max(0, Math.min(100, Number(intensity) || 0));
     if (intensity <= 0) return;
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) intensity = Math.min(intensity, 15);
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) intensity = Math.min(intensity, 18);
 
     this.ensure();
-    const count = Math.round((intensity / 100) * 260 * scale);   // up to excessive at 100
-    const W = this.canvas.width;
-    for (let i = 0; i < count; i++) {
-      this.particles.push({
-        x: Math.random() * W,
-        y: -20 - Math.random() * 80,
-        vx: (Math.random() - 0.5) * 6,
-        vy: 2 + Math.random() * 5 + (intensity / 100) * 4,
-        g: 0.08 + Math.random() * 0.06,
-        size: 4 + Math.random() * 6,
-        rot: Math.random() * Math.PI,
-        vr: (Math.random() - 0.5) * 0.3,
-        color: this.colors[(Math.random() * this.colors.length) | 0],
-        life: 0, max: 130 + Math.random() * 90
-      });
+    const I = intensity / 100;
+    scale = Math.min(scale, 4);
+
+    // counts ramp hard with intensity so 100 is genuinely over the top
+    const perWave = Math.min(340, Math.max(10, Math.round(I * 150 * scale)));
+    const waves   = Math.min(26, Math.max(1, Math.round(1 + I * I * 16 * scale)));
+    const power   = 15 + I * 12;
+
+    // opening double-cannon blast
+    if (I >= 0.35) {
+      this.cannon(-1, Math.round(perWave * 0.9), power);
+      this.cannon(1,  Math.round(perWave * 0.9), power);
     }
-    if (this.particles.length > 5000) this.particles.length = 5000;   // hard safety cap
+    this.rain(perWave, I);
+    this.run();
+
+    // sustained downpour + repeat cannons over the next ~2 seconds
+    for (let w = 1; w < waves; w++) {
+      setTimeout(() => {
+        this.rain(perWave, I);
+        if (I >= 0.6 && w % 2 === 0) {
+          this.cannon(-1, Math.round(perWave * 0.55), power);
+          this.cannon(1,  Math.round(perWave * 0.55), power);
+        }
+        this.run();
+      }, w * 85);
+    }
+  },
+
+  run() {
     if (!this.running) { this.running = true; requestAnimationFrame(() => this.tick()); }
   },
 
   tick() {
-    const ctx = this.ctx, cv = this.canvas, H = cv.height;
-    ctx.clearRect(0, 0, cv.width, H);
+    const ctx = this.ctx, cv = this.canvas, H = cv.height, W = cv.width;
+    ctx.clearRect(0, 0, W, H);
     this.particles = this.particles.filter(p => {
       p.life++; p.vy += p.g; p.vx *= 0.99; p.x += p.vx; p.y += p.vy; p.rot += p.vr;
-      if (p.y > H + 20 || p.life > p.max) return false;
+      if (p.y > H + 30 || p.x < -50 || p.x > W + 50 || p.life > p.max) return false;
       ctx.save();
       ctx.translate(p.x, p.y); ctx.rotate(p.rot);
       ctx.globalAlpha = Math.max(0, 1 - p.life / p.max);
       ctx.fillStyle = p.color;
-      ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+      if (p.streamer) ctx.fillRect(-p.size * 0.18, -p.size * 1.1, p.size * 0.36, p.size * 2.2);
+      else ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.62);
       ctx.restore();
       return true;
     });
     if (this.particles.length) requestAnimationFrame(() => this.tick());
-    else { ctx.clearRect(0, 0, cv.width, H); this.running = false; }
+    else { ctx.clearRect(0, 0, W, H); this.running = false; }
   }
 };
