@@ -171,10 +171,17 @@ label {
 .note-words { font-family: var(--display); font-style: italic; font-size: 15px; color: var(--green); }
 
 .note-awards { margin-top: 18px; }
+.awards-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
 .awards-label {
-  display: block; font-family: var(--mono); font-size: 9.5px; letter-spacing: .16em;
-  text-transform: uppercase; color: rgba(22,40,62,.55); margin-bottom: 8px;
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: .16em;
+  text-transform: uppercase; color: rgba(22,40,62,.55);
 }
+.awards-count { font-family: var(--display); font-weight: 700; font-size: 16px; color: var(--stamp); }
+.note-awards.empty .awards-count {
+  font-family: var(--mono); font-weight: 600; font-size: 10px; letter-spacing: .14em;
+  text-transform: uppercase; color: rgba(22,40,62,.4);
+}
+.note-awards.empty .awards-cap { color: rgba(22,40,62,.5); }
 .awards-icons { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
 .awards-set { display: inline-flex; gap: 4px; }
 .awards-more { font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--stamp); align-self: center; }

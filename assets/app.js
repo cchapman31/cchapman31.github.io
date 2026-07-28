@@ -175,16 +175,22 @@ function earnedFrom(transfers, occs) {
 
 function renderBaseballs(count) {
   count = Math.max(0, Math.floor(count || 0));
-  const host = $('awards-icons'), cap = $('awards-cap');
+  const wrap = $('note-awards'), host = $('awards-icons');
+  const countEl = $('awards-count'), cap = $('awards-cap');
   if (!host || !cap) return;
 
   const set = (slots) => `<span class="awards-set">${slots.map(f => baseballSVG(f)).join('')}</span>`;
 
   if (count === 0) {
+    if (wrap) wrap.classList.add('empty');
+    if (countEl) countEl.textContent = 'None yet';
     host.innerHTML = set([false, false, false]);
-    cap.textContent = '3 baseballs = $2,500 experience';
+    cap.textContent = 'Earn 3 for a $2,500 experience';
     return;
   }
+
+  if (wrap) wrap.classList.remove('empty');
+  if (countEl) countEl.textContent = `${count} ⚾`;
 
   const MAX = 12;
   const shown = Math.min(count, MAX);

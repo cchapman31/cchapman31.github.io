@@ -39,12 +39,16 @@ function renderOverview(d) {
         : ''}</td>
     </tr>`).join('');
 
-  // member picker for adjustments
-  const picker = $('adj-email');
-  const keep = picker.value;
-  picker.innerHTML = d.users.map(u =>
-    `<option value="${esc(u.email)}">${esc(u.name)} — ${esc(u.email)} (${money(u.balance)})</option>`).join('');
-  if (keep) picker.value = keep;
+  // member pickers for adjustments (bucks + baseballs)
+  const options = d.users.map(u =>
+    `<option value="${esc(u.email)}">${esc(u.name)} — ${esc(u.email)} (${money(u.balance)}, ${u.baseballs}⚾)</option>`).join('');
+  ['adj-email', 'ball-email'].forEach(id => {
+    const picker = $(id);
+    if (!picker) return;
+    const keep = picker.value;
+    picker.innerHTML = options;
+    if (keep) picker.value = keep;
+  });
 
   // admin chips
   $('admin-chips').innerHTML = d.admins.map(email => {
@@ -166,6 +170,17 @@ on('adj-go', 'click', (e) => {
     () => api('adjust', { email, amount, note: $('adj-note').value }),
     (r) => `${email} is now at ${money(r.balance)}.`
   ).then(() => { $('adj-amount').value = ''; $('adj-note').value = ''; });
+});
+
+on('ball-go', 'click', (e) => {
+  const email = $('ball-email').value;
+  const amount = Math.round(Number($('ball-amount').value));
+  if (!email) return say($('msg'), 'Pick a member first.', 'bad');
+  if (!amount) return say($('msg'), 'Enter a number of baseballs to award or take back.', 'bad');
+  run(e.target,
+    () => api('adjustBaseballs', { email, amount, note: $('ball-note').value }),
+    (r) => `${email} now holds ${r.baseballs} baseball${r.baseballs === 1 ? '' : 's'}.`
+  ).then(() => { $('ball-amount').value = ''; $('ball-note').value = ''; });
 });
 
 on('add-admin', 'click', (e) => {
