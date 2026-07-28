@@ -60,6 +60,20 @@
     </section>
 
     <section class="panel">
+      <h2>Award baseballs</h2>
+      <div class="form-grid">
+        <div style="grid-column:1/-1">
+          <label for="ball-email">Member</label>
+          <select id="ball-email"></select>
+        </div>
+        <div><label for="ball-amount">Baseballs</label><input id="ball-amount" type="number" step="1" placeholder="1 or -1"></div>
+        <div><label for="ball-note">Reason</label><input id="ball-note" placeholder="Home run award"></div>
+      </div>
+      <button id="ball-go" class="btn btn-solid">Award baseballs</button>
+      <p class="fineprint">Home Run Awards, added by hand. 3 baseballs = $2,500 toward an experience. Positive awards, negative takes back.</p>
+    </section>
+
+    <section class="panel">
       <h2>Admins</h2>
       <div class="form-row">
         <div><label for="new-admin">Add an admin by email</label><input id="new-admin" type="email" placeholder="name@topfarmersagent.com"></div>
