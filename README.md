@@ -1,12 +1,26 @@
 # CIA Bucks
 
 A prize wheel for the Top Farmers Agent team. Members sign in with their work Google
-account, spin for $5, $10 or $20 in CIA Bucks, and the balance lands in a bank they can
-watch grow. Admins can adjust balances, add other admins, and tune the odds.
+account, **log their daily stats to earn spins**, then spin for $5, $10 or $20 in CIA Bucks
+that land in a bank they can watch grow. Admins can adjust balances, add other admins, tune
+the odds, and review everyone's stats.
 
 - **Front end** — plain HTML/CSS/JS on GitHub Pages.
 - **Back end** — a Google Apps Script web app bound to the spreadsheet.
-- **Database** — a Google Sheet with four tabs: `Users`, `Admins`, `Ledger`, `Config`.
+- **Database** — a Google Sheet with five tabs: `Users`, `Admins`, `Ledger`, `Stats`, `Config`.
+
+## Earning spins
+
+There are no free spins and no timed spins. Spins are earned only by logging stats, once
+per calendar day:
+
+- **Transfers** — reaching the threshold (default 20) earns 1 spin, then +1 per transfer
+  above it. So 20 transfers is 1 spin, 23 is 4 spins, 19 is none.
+- **OCCs** (One-Call-Closes) — each one earns 1 spin.
+
+A day's spins are added to the member's balance of available spins, which the wheel then
+spends down one at a time. The transfer threshold and the spins-per-OCC are both adjustable
+in the admin settings.
 
 ## Why there's a back end
 
@@ -28,8 +42,15 @@ The Apps Script web app does three things the browser can't be trusted with:
 2. **Extensions → Apps Script.**
 3. Delete the starter code, paste in everything from `apps-script/Code.gs`, save.
 4. In the function dropdown pick `setupSpreadsheet`, click **Run**, and approve the
-   permissions prompt. This creates the four tabs and seeds `cody@insurancesaleslab.com`
+   permissions prompt. This creates the five tabs and seeds `cody@insurancesaleslab.com`
    as the first admin.
+
+> **Upgrading an existing sheet?** The `Users` tab gained columns (earned spins, stats)
+> and there's a new `Stats` tab. `setupSpreadsheet` only creates missing tabs — it won't
+> rearrange an old `Users` tab. If you already have a `Users` tab from an earlier version,
+> the simplest path is to delete the `Users`, `Ledger` and `Config` tabs (or start a brand
+> new spreadsheet) and run `setupSpreadsheet` again. Any test balances are lost, which is
+> fine before launch.
 
 ### 2. The OAuth client ID
 
@@ -80,12 +101,17 @@ Cody's account to reach the admin area — the link also appears in the header f
 `Admins` tab. That second rule is what lets `cody@insurancesaleslab.com` in from a different
 domain. To change the member domain later, use **Allowed domain** in the admin settings.
 
+**Spins are earned, never free.** A member logs transfers and OCCs once per day, and those
+convert to spins by the rules above. The wheel is disabled until they have spins to spend.
+If someone fat-fingers their numbers, an admin can hit **Re-log** next to their name in the
+Members table to let them enter the day again — spins already earned that day stay put.
+
 **The odds.** Weights, not percentages — `60 / 30 / 10` means $5 shows up six times as often
 as $20. The admin panel shows the resulting percentages and the average payout per spin as
 you type. The wheel's eight visible segments are decoration; only the weights matter.
 
-**Spin cooldown.** Defaults to 24 hours per person. Set it to "No wait" for a live event,
-then switch **Spinning** to *Paused* when the event is over.
+**Pausing.** Switch **Spinning** to *Paused* in admin settings to freeze the wheel program-wide
+(stats can still be logged; the spins just bank up until you reopen it).
 
 **The ledger.** Every spin, credit, debit, admin change and settings change is appended to
 the `Ledger` tab with a timestamp and who did it. Nothing is edited in place, so the sheet
