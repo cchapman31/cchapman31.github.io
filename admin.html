@@ -74,13 +74,19 @@
     </section>
 
     <section class="panel">
-      <h2>Admins</h2>
-      <div class="form-row">
-        <div><label for="new-admin">Add an admin by email</label><input id="new-admin" type="email" placeholder="name@topfarmersagent.com"></div>
-        <button id="add-admin" class="btn">Add</button>
+      <h2>Roles</h2>
+      <div class="form-grid">
+        <div style="grid-column:1/-1"><label for="role-email">Email</label>
+          <input id="role-email" type="email" placeholder="name@topfarmersagent.com"></div>
+        <div><label for="role-kind">Role</label>
+          <select id="role-kind">
+            <option value="lead">Team Lead</option>
+            <option value="admin">Admin</option>
+          </select></div>
+        <div style="align-self:end"><button id="role-go" class="btn btn-solid" style="width:100%">Assign role</button></div>
       </div>
-      <div id="admin-chips" class="chip-list"></div>
-      <p class="fineprint">Admins can sign in from any domain. The owner account is permanent.</p>
+      <div id="role-chips" class="chip-list"></div>
+      <p class="fineprint">Admins can do everything. Team leads can spin and trigger a re-log for teammates. Assigning a role to someone who already has one changes it. The owner is always an admin.</p>
     </section>
 
     <section class="panel">
