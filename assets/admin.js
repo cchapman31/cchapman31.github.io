@@ -3,10 +3,11 @@
 const $ = (id) => document.getElementById(id);
 const OWNER = 'cody@insurancesaleslab.com';
 const LABELS = { spin: 'Wheel spin', credit: 'Manual credit', debit: 'Manual debit',
-                 'admin-add': 'Made admin', 'admin-remove': 'Admin removed', config: 'Setting changed',
-                 stats: 'Stats logged', 'stats-reset': 'Stat lock cleared' };
+                 'role-set': 'Role assigned', 'role-remove': 'Role removed', config: 'Setting changed',
+                 stats: 'Stats logged', 'stats-reset': 'Stat lock cleared',
+                 'baseball-add': 'Baseball added', 'baseball-remove': 'Baseball removed' };
 
-let state = { users: [], admins: [], config: {}, today: '' };
+let state = { users: [], roles: [], config: {}, today: '' };
 
 const esc = (s) => String(s).replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -14,7 +15,9 @@ const esc = (s) => String(s).replace(/[&<>"']/g, c =>
 /* ---------------------------------------------------------------- render */
 
 function renderOverview(d) {
-  state.users = d.users; state.admins = d.admins; state.config = d.config; state.today = d.today || '';
+  state.users = d.users; state.roles = d.roles; state.config = d.config; state.today = d.today || '';
+  const roleOf = {};
+  d.roles.forEach(r => { roleOf[r.email] = r.role; });
 
   $('t-issued').textContent  = money(d.totals.issued);
   $('t-members').textContent = d.totals.members;
@@ -23,10 +26,13 @@ function renderOverview(d) {
   $('t-baseballs').textContent = d.totals.baseballs;
 
   // members table
+  const roleTag = (email) => roleOf[email]
+    ? ` <span class="tag" style="color:${roleOf[email] === 'admin' ? 'var(--gold)' : 'var(--green-lit)'}">${roleOf[email] === 'admin' ? 'admin' : 'lead'}</span>`
+    : '';
   $('members-empty').classList.toggle('hidden', d.users.length > 0);
   $('members-body').innerHTML = d.users.map(u => `
     <tr>
-      <td>${esc(u.name)}${d.admins.includes(u.email) ? ' <span class="tag" style="color:var(--gold)">admin</span>' : ''}</td>
+      <td>${esc(u.name)}${roleTag(u.email)}</td>
       <td class="muted">${esc(u.email)}</td>
       <td class="num">${u.transfers}</td>
       <td class="num">${u.occs}</td>
@@ -50,11 +56,12 @@ function renderOverview(d) {
     if (keep) picker.value = keep;
   });
 
-  // admin chips
-  $('admin-chips').innerHTML = d.admins.map(email => {
-    const locked = email === OWNER;
-    return `<span class="chip ${locked ? 'locked' : ''}">${esc(email)}${
-      locked ? '' : `<button data-remove="${esc(email)}" title="Remove admin" aria-label="Remove ${esc(email)}">&times;</button>`}</span>`;
+  // role chips
+  $('role-chips').innerHTML = d.roles.map(r => {
+    const locked = r.email === OWNER;
+    const label = r.role === 'admin' ? 'Admin' : 'Team Lead';
+    return `<span class="chip ${locked ? 'locked' : ''}"><b style="font-weight:600">${label}</b> · ${esc(r.email)}${
+      locked ? '' : `<button data-remove="${esc(r.email)}" title="Remove role" aria-label="Remove role for ${esc(r.email)}">&times;</button>`}</span>`;
   }).join('');
 
   // settings
@@ -184,11 +191,13 @@ on('ball-go', 'click', (e) => {
   ).then(() => { $('ball-amount').value = ''; $('ball-note').value = ''; });
 });
 
-on('add-admin', 'click', (e) => {
-  const email = $('new-admin').value.trim();
-  if (!email) return say($('msg'), 'Enter an email address to add.', 'bad');
-  run(e.target, () => api('addAdmin', { email }), `${email} can now open the admin area.`)
-    .then(() => { $('new-admin').value = ''; });
+on('role-go', 'click', (e) => {
+  const email = $('role-email').value.trim();
+  const role = $('role-kind').value;
+  if (!email) return say($('msg'), 'Enter an email address.', 'bad');
+  run(e.target, () => api('addRole', { email, role }),
+    `${email} is now a ${role === 'admin' ? 'admin' : 'team lead'}.`)
+    .then(() => { $('role-email').value = ''; });
 });
 
 on('members-body', 'click', (e) => {
@@ -198,11 +207,11 @@ on('members-body', 'click', (e) => {
   run(e.target, () => api('clearStatLock', { email }), `${email} can log stats again today.`);
 });
 
-on('admin-chips', 'click', (e) => {
+on('role-chips', 'click', (e) => {
   const email = e.target.dataset?.remove;
   if (!email) return;
-  if (!confirm(`Remove admin access for ${email}?`)) return;
-  run(e.target, () => api('removeAdmin', { email }), `${email} no longer has admin access.`);
+  if (!confirm(`Remove the role for ${email}?`)) return;
+  run(e.target, () => api('removeRole', { email }), `${email} no longer has a role.`);
 });
 
 on('save-config', 'click', (e) => {
@@ -221,8 +230,8 @@ on('sign-out', 'click', () => { signOut(); location.href = 'index.html'; });
 
 /* ------------------------------------------------------------------ boot */
 
-$('gate-seal').innerHTML = rosetteSVG(132, '#c9a227', .6);
-$('mast-seal').innerHTML = rosetteSVG(38, '#c9a227', .85).replace('class="rosette"', 'class="seal"');
+$('gate-seal').innerHTML = logoImg(120, 'gate-logo');
+$('mast-seal').innerHTML = logoImg(38, 'seal');
 
 // If we already hold a token, load straight in without touching Google's login UI.
 if (hasToken()) boot(); else showGate('');

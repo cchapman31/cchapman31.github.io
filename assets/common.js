@@ -88,6 +88,12 @@ function rosetteSVG(size, stroke, opacity = 0.55) {
   </svg>`;
 }
 
+/** The Cherchenko Insurance Agency badge, used for the masthead, sign-in gate, and wheel hub. */
+function logoImg(size, cls = 'seal') {
+  return `<img class="${cls}" src="assets/logo.png" alt="Cherchenko Insurance Agency"
+    width="${size}" height="${size}" style="width:${size}px;height:${size}px;object-fit:contain">`;
+}
+
 /** Baseball outline icon. `earned` fills it in the stamp red; otherwise a faint ghost slot. */
 function baseballSVG(earned, size = 18) {
   const stroke = earned ? '#a53a2e' : 'rgba(22,40,62,.26)';

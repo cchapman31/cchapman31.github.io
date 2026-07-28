@@ -49,12 +49,7 @@ function buildWheel() {
       <g id="wheel-rotor">
         ${sectors}${ticks}
         <circle cx="200" cy="200" r="58" fill="#081321" stroke="#c9a227" stroke-width="2"/>
-        <g transform="translate(200 200) scale(.30) translate(-100 -100)">
-          <path d="${rosettePath(100, 100, 84, 31, 46)}" fill="none" stroke="#c9a227" stroke-width="1.6" opacity=".85"/>
-        </g>
-        <text x="200" y="203" text-anchor="middle" dominant-baseline="central"
-              font-family="'Montserrat', sans-serif" font-size="13"
-              letter-spacing="3" fill="#e8c65a">CIA</text>
+        <image href="assets/logo.png" x="150" y="150" width="100" height="100" preserveAspectRatio="xMidYMid meet"/>
       </g>
     </svg>`;
 }
@@ -300,6 +295,34 @@ function applySession(data) {
 
   renderStats(data);
   updateSpinButton();
+
+  // Team leads and admins can trigger a re-log for teammates
+  const canRelog = u.role === 'lead' || u.role === 'admin';
+  const teamPanel = $('team-panel');
+  if (teamPanel) {
+    teamPanel.classList.toggle('hidden', !canRelog);
+    if (canRelog) loadTeam();
+  }
+}
+
+async function loadTeam() {
+  try {
+    const { members } = await api('teamRoster');
+    const me = $('whoami').textContent.toLowerCase();
+    const others = members.filter(m => m.email !== me);
+    $('team-empty').classList.toggle('hidden', others.length > 0);
+    $('team-body').innerHTML = others.map(m => `
+      <tr>
+        <td>${escapeHtml(m.name)}${m.role ? ` <span class="tag" style="color:${m.role === 'admin' ? 'var(--gold)' : 'var(--green-lit)'}">${m.role}</span>` : ''}</td>
+        <td class="${m.submittedToday ? 'pos' : 'muted'}">${m.submittedToday ? 'Logged today' : 'Not yet'}</td>
+        <td class="num">${m.submittedToday
+          ? `<button class="btn btn-sm" data-relog="${escapeHtml(m.email)}">Re-log</button>`
+          : ''}</td>
+      </tr>`).join('');
+  } catch (err) {
+    $('team-empty').textContent = err.message;
+    $('team-empty').classList.remove('hidden');
+  }
 }
 
 async function loadSession() {
@@ -453,12 +476,28 @@ on('submit-stats', 'click', async (e) => {
 on('in-transfers', 'input', updateEarnPreview);
 on('in-occs', 'input', updateEarnPreview);
 
+on('team-body', 'click', async (e) => {
+  const email = e.target.dataset?.relog;
+  if (!email) return;
+  if (!confirm(`Let ${email} log stats again today? Spins they already earned today stay.`)) return;
+  e.target.disabled = true;
+  say($('msg'), '');
+  try {
+    await api('clearStatLock', { email });
+    say($('msg'), `${email} can log stats again today.`, 'good');
+    loadTeam();
+  } catch (err) {
+    say($('msg'), err.message, 'bad');
+    e.target.disabled = false;
+  }
+});
+
 on('sign-out', 'click', () => { signOut(); location.reload(); });
 
 /* ---------------------------------------------------------------- boot */
 
-document.getElementById('gate-seal').innerHTML = rosetteSVG(132, '#c9a227', .6);
-document.getElementById('mast-seal').innerHTML = rosetteSVG(38, '#c9a227', .85).replace('class="rosette"', 'class="seal"');
+document.getElementById('gate-seal').innerHTML = logoImg(120, 'gate-logo');
+document.getElementById('mast-seal').innerHTML = logoImg(38, 'seal');
 $('domain-label').textContent = '@' + CFG.ALLOWED_DOMAIN;
 buildWheel();
 

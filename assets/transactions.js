@@ -128,7 +128,7 @@ on('sign-out', 'click', () => { signOut(); location.href = 'index.html'; });
 
 /* ------------------------------------------------------------------ boot */
 
-$('gate-seal').innerHTML = rosetteSVG(132, '#c9a227', .6);
-$('mast-seal').innerHTML = rosetteSVG(38, '#c9a227', .85).replace('class="rosette"', 'class="seal"');
+$('gate-seal').innerHTML = logoImg(120, 'gate-logo');
+$('mast-seal').innerHTML = logoImg(38, 'seal');
 
 if (hasToken()) boot(); else showGate('');
