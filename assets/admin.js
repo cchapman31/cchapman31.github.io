@@ -3,9 +3,10 @@
 const $ = (id) => document.getElementById(id);
 const OWNER = 'cody@insurancesaleslab.com';
 const LABELS = { spin: 'Wheel spin', credit: 'Manual credit', debit: 'Manual debit',
-                 'admin-add': 'Made admin', 'admin-remove': 'Admin removed', config: 'Setting changed' };
+                 'admin-add': 'Made admin', 'admin-remove': 'Admin removed', config: 'Setting changed',
+                 stats: 'Stats logged', 'stats-reset': 'Stat lock cleared' };
 
-let state = { users: [], admins: [], config: {} };
+let state = { users: [], admins: [], config: {}, today: '' };
 
 const esc = (s) => String(s).replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -13,12 +14,12 @@ const esc = (s) => String(s).replace(/[&<>"']/g, c =>
 /* ---------------------------------------------------------------- render */
 
 function renderOverview(d) {
-  state.users = d.users; state.admins = d.admins; state.config = d.config;
+  state.users = d.users; state.admins = d.admins; state.config = d.config; state.today = d.today || '';
 
   $('t-issued').textContent  = money(d.totals.issued);
   $('t-members').textContent = d.totals.members;
-  $('t-spins').textContent   = d.totals.spins;
-  $('t-avg').textContent     = money(d.totals.members ? Math.round(d.totals.issued / d.totals.members) : 0);
+  $('t-spins').textContent   = d.totals.spinsUsed;
+  $('t-out').textContent     = d.totals.spinsOut;
 
   // members table
   $('members-empty').classList.toggle('hidden', d.users.length > 0);
@@ -26,12 +27,17 @@ function renderOverview(d) {
     <tr>
       <td>${esc(u.name)}${d.admins.includes(u.email) ? ' <span class="tag" style="color:var(--gold)">admin</span>' : ''}</td>
       <td class="muted">${esc(u.email)}</td>
-      <td class="num">${u.spins}</td>
+      <td class="num">${u.transfers}</td>
+      <td class="num">${u.occs}</td>
+      <td class="num" style="color:var(--gold-lit)">${u.spinsAvailable}</td>
+      <td class="num muted">${u.spinsUsed}</td>
       <td class="num" style="color:var(--gold-lit);font-weight:600">${money(u.balance)}</td>
-      <td class="muted">${when(u.lastSpin)}</td>
+      <td class="num">${u.lastStatDate === state.today
+        ? `<button class="btn btn-sm" data-relog="${esc(u.email)}" title="Let this member log stats again today">Re-log</button>`
+        : ''}</td>
     </tr>`).join('');
 
-  // member picker
+  // member picker for adjustments
   const picker = $('adj-email');
   const keep = picker.value;
   picker.innerHTML = d.users.map(u =>
@@ -46,13 +52,27 @@ function renderOverview(d) {
   }).join('');
 
   // settings
-  $('cfg-spinsAllowed').value    = String(d.config.spinsAllowed);
-  $('cfg-cooldownSeconds').value = String(d.config.cooldownSeconds);
-  $('cfg-allowedDomain').value   = d.config.allowedDomain;
+  $('cfg-spinsAllowed').value      = String(d.config.spinsAllowed);
+  $('cfg-transferThreshold').value = d.config.transferThreshold;
+  $('cfg-occSpins').value          = d.config.occSpins;
+  $('cfg-allowedDomain').value     = d.config.allowedDomain;
   $('cfg-weight5').value  = d.config.weight5;
   $('cfg-weight10').value = d.config.weight10;
   $('cfg-weight20').value = d.config.weight20;
   updateOdds();
+}
+
+function renderStats(entries) {
+  $('stats-empty').classList.toggle('hidden', entries.length > 0);
+  $('stats-body').innerHTML = entries.map(e => `
+    <tr>
+      <td class="muted">${when(e.at)}</td>
+      <td>${esc(e.date)}</td>
+      <td>${esc(e.email)}</td>
+      <td class="num">${e.transfers}</td>
+      <td class="num">${e.occs}</td>
+      <td class="num" style="color:var(--gold-lit)">${e.earned}</td>
+    </tr>`).join('');
 }
 
 function updateOdds() {
@@ -81,9 +101,12 @@ function renderLog(entries) {
 /* ------------------------------------------------------------------ load */
 
 async function refresh() {
-  const [overview, log] = await Promise.all([api('adminOverview'), api('adminLedger')]);
+  const [overview, log, stats] = await Promise.all([
+    api('adminOverview'), api('adminLedger'), api('adminStats')
+  ]);
   renderOverview(overview);
   renderLog(log.entries);
+  renderStats(stats.entries);
 }
 
 async function boot() {
@@ -143,6 +166,13 @@ $('add-admin').addEventListener('click', (e) => {
     .then(() => { $('new-admin').value = ''; });
 });
 
+$('members-body').addEventListener('click', (e) => {
+  const email = e.target.dataset?.relog;
+  if (!email) return;
+  if (!confirm(`Let ${email} log stats again today? Spins already earned today stay.`)) return;
+  run(e.target, () => api('clearStatLock', { email }), `${email} can log stats again today.`);
+});
+
 $('admin-chips').addEventListener('click', (e) => {
   const email = e.target.dataset?.remove;
   if (!email) return;
@@ -151,7 +181,7 @@ $('admin-chips').addEventListener('click', (e) => {
 });
 
 $('save-config').addEventListener('click', (e) => {
-  const keys = ['spinsAllowed', 'cooldownSeconds', 'allowedDomain', 'weight5', 'weight10', 'weight20'];
+  const keys = ['spinsAllowed', 'transferThreshold', 'occSpins', 'allowedDomain', 'weight5', 'weight10', 'weight20'];
   run(e.target, async () => {
     for (const key of keys) {
       const value = $('cfg-' + key).value;

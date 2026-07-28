@@ -7,7 +7,11 @@ const $ = (id) => document.getElementById(id);
 let angle = 0;          // current absolute rotation in degrees
 let rafId = null;
 let spinning = false;
-let cooldownTimer = null;
+
+let spinsReady = 0;
+let spinsAllowed = true;
+let submittedToday = false;
+let RULES = { transferThreshold: 20, occSpins: 1 };
 
 /* ------------------------------------------------------------ the wheel */
 
@@ -161,26 +165,57 @@ function escapeHtml(s) {
 
 /* ---------------------------------------------------------- the session */
 
-function startCooldown(seconds) {
-  clearInterval(cooldownTimer);
-  const btn = $('spin'), status = $('spin-status');
+function earnedFrom(transfers, occs) {
+  const t = Math.max(0, Math.floor(Number(transfers) || 0));
+  const o = Math.max(0, Math.floor(Number(occs) || 0));
+  const fromT = t >= RULES.transferThreshold ? (t - RULES.transferThreshold + 1) : 0;
+  return fromT + o * RULES.occSpins;
+}
 
-  if (seconds <= 0) {
+function updateSpinButton() {
+  const btn = $('spin'), status = $('spin-status');
+  $('spins-count').textContent = spinsReady;
+
+  if (!spinsAllowed) { btn.disabled = true; status.textContent = 'Spins are paused'; return; }
+  if (spinsReady > 0) {
     btn.disabled = false;
-    status.textContent = 'Ready when you are';
-    return;
+    status.textContent = `${spinsReady} spin${spinsReady === 1 ? '' : 's'} ready`;
+  } else {
+    btn.disabled = true;
+    status.textContent = submittedToday
+      ? 'Out of spins — log stats again tomorrow'
+      : "Log today's stats to earn spins";
   }
-  btn.disabled = true;
-  let left = seconds;
-  const tick = () => {
-    if (left <= 0) { clearInterval(cooldownTimer); startCooldown(0); return; }
-    const h = Math.floor(left / 3600), m = Math.floor((left % 3600) / 60), s = left % 60;
-    status.textContent = 'Next spin in ' +
-      (h ? `${h}h ${String(m).padStart(2, '0')}m` : `${m}m ${String(s).padStart(2, '0')}s`);
-    left--;
-  };
-  tick();
-  cooldownTimer = setInterval(tick, 1000);
+}
+
+function updateEarnPreview() {
+  const t = Number($('in-transfers').value) || 0;
+  const o = Number($('in-occs').value) || 0;
+  const n = earnedFrom(t, o);
+  $('earn-preview').textContent = (t || o)
+    ? `That's ${n} spin${n === 1 ? '' : 's'}.`
+    : '';
+}
+
+function renderStats(data) {
+  const entry = $('stats-entry'), done = $('stats-done');
+  $('rules-note').textContent =
+    `${RULES.transferThreshold} transfers = 1 spin, then +1 per transfer after. ` +
+    `Each OCC = ${RULES.occSpins} spin${RULES.occSpins === 1 ? '' : 's'}. Log once a day.`;
+
+  if (data.submittedToday && data.statsToday) {
+    entry.classList.add('hidden');
+    done.classList.remove('hidden');
+    $('done-transfers').textContent = data.statsToday.transfers;
+    $('done-occs').textContent = data.statsToday.occs;
+    $('done-earned').textContent = data.statsToday.earned;
+  } else {
+    done.classList.add('hidden');
+    entry.classList.remove('hidden');
+    $('in-transfers').value = '';
+    $('in-occs').value = '';
+    updateEarnPreview();
+  }
 }
 
 function applySession(data) {
@@ -194,7 +229,7 @@ function applySession(data) {
   $('admin-link').classList.toggle('hidden', !u.isAdmin);
 
   $('serial').textContent = serialFor(u.email);
-  $('spin-count').textContent = u.spins;
+  $('spin-count').textContent = u.spinsUsed;
   setBalance(u.balance);
 
   const deposits = data.entries.filter(e => e.amount !== 0);
@@ -205,12 +240,13 @@ function applySession(data) {
 
   renderLedger(data.entries);
 
-  if (!data.spinsAllowed) {
-    $('spin').disabled = true;
-    $('spin-status').textContent = 'Spins are paused';
-  } else {
-    startCooldown(data.cooldownLeft);
-  }
+  spinsAllowed = data.spinsAllowed;
+  submittedToday = data.submittedToday;
+  RULES = data.rules;
+  spinsReady = u.spinsAvailable;
+
+  renderStats(data);
+  updateSpinButton();
 }
 
 async function loadSession() {
@@ -232,9 +268,8 @@ function showGate(message) {
 /* -------------------------------------------------------------- wiring */
 
 $('spin').addEventListener('click', async () => {
-  if (spinning) return;
+  if (spinning || spinsReady <= 0) return;
   spinning = true;
-  clearInterval(cooldownTimer);
   $('spin').disabled = true;
   $('stamp').classList.remove('show');
   $('spin-status').textContent = 'Spinning…';
@@ -253,24 +288,46 @@ $('spin').addEventListener('click', async () => {
     await settleSpin(result.prize);
 
     setBalance(result.balance, true);
-    $('spin-count').textContent = result.spins;
+    $('spin-count').textContent = result.spinsUsed;
     $('last-deposit').textContent = when(new Date().toISOString()).split(' ').slice(0, 2).join(' ');
     $('stamp').classList.add('show');
     say($('msg'), `${money(result.prize)} in CIA Bucks landed in your bank.`, 'good');
 
+    spinsReady = result.spinsAvailable;
+    updateSpinButton();
+
     const fresh = await api('ledger');
     renderLedger(fresh.entries);
-    startCooldown(result.cooldownLeft);
   } catch (err) {
     stopSpin();
     say($('msg'), err.message, 'bad');
-    $('spin-status').textContent = '';
-    $('spin').disabled = false;
-    if (/unlocks in/i.test(err.message)) loadSession();
+    loadSession();                                   // resync spins/state from the server
   } finally {
     spinning = false;
   }
 });
+
+$('submit-stats').addEventListener('click', async (e) => {
+  const transfers = Math.floor(Number($('in-transfers').value));
+  const occs = Math.floor(Number($('in-occs').value));
+  if (!(transfers >= 0) || !(occs >= 0)) return say($('msg'), 'Enter whole numbers for transfers and OCCs.', 'bad');
+  if (!transfers && !occs) return say($('msg'), 'Enter at least one transfer or OCC.', 'bad');
+
+  e.target.disabled = true;
+  say($('msg'), '');
+  try {
+    const r = await api('submitStats', { transfers, occs });
+    say($('msg'), r.earned > 0
+      ? `Logged. You earned ${r.earned} spin${r.earned === 1 ? '' : 's'}.`
+      : 'Logged — no spins from these numbers today.', 'good');
+    await loadSession();
+  } catch (err) {
+    say($('msg'), err.message, 'bad');
+    e.target.disabled = false;
+  }
+});
+
+['in-transfers', 'in-occs'].forEach(id => $(id).addEventListener('input', updateEarnPreview));
 
 $('sign-out').addEventListener('click', () => { signOut(); location.reload(); });
 
