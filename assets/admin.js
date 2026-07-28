@@ -62,6 +62,7 @@ function renderOverview(d) {
   $('cfg-transferThreshold').value = d.config.transferThreshold;
   $('cfg-occSpins').value          = d.config.occSpins;
   $('cfg-allowedDomain').value     = d.config.allowedDomain;
+  $('cfg-confettiIntensity').value = d.config.confettiIntensity;
   $('cfg-weight5').value  = d.config.weight5;
   $('cfg-weight10').value = d.config.weight10;
   $('cfg-weight20').value = d.config.weight20;
@@ -205,7 +206,7 @@ on('admin-chips', 'click', (e) => {
 });
 
 on('save-config', 'click', (e) => {
-  const keys = ['spinsAllowed', 'transferThreshold', 'occSpins', 'allowedDomain', 'weight5', 'weight10', 'weight20'];
+  const keys = ['spinsAllowed', 'transferThreshold', 'occSpins', 'allowedDomain', 'confettiIntensity', 'weight5', 'weight10', 'weight20'];
   run(e.target, async () => {
     for (const key of keys) {
       const value = $('cfg-' + key).value;

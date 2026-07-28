@@ -11,6 +11,7 @@ let spinning = false;
 let spinsReady = 0;
 let spinsAllowed = true;
 let submittedToday = false;
+let confettiIntensity = 60;
 let RULES = { transferThreshold: 20, occSpins: 1 };
 
 /* ------------------------------------------------------------ the wheel */
@@ -179,7 +180,10 @@ function renderBaseballs(count) {
   const countEl = $('awards-count'), cap = $('awards-cap');
   if (!host || !cap) return;
 
-  const set = (slots) => `<span class="awards-set">${slots.map(f => baseballSVG(f)).join('')}</span>`;
+  const set = (slots) => {
+    const full = slots.every(Boolean);
+    return `<span class="awards-set${full ? ' full' : ''}">${slots.map(f => baseballSVG(f)).join('')}</span>`;
+  };
 
   if (count === 0) {
     if (wrap) wrap.classList.add('empty');
@@ -210,8 +214,15 @@ function renderBaseballs(count) {
 }
 
 function updateSpinButton() {
-  const btn = $('spin'), status = $('spin-status');
+  const btn = $('spin'), status = $('spin-status'), all = $('spin-all');
   $('spins-count').textContent = spinsReady;
+
+  const showAll = spinsAllowed && spinsReady > 10 && !spinning;
+  if (all) {
+    all.classList.toggle('hidden', !showAll);
+    all.textContent = `Spin all ${spinsReady}`;
+    all.disabled = false;
+  }
 
   if (!spinsAllowed) { btn.disabled = true; status.textContent = 'Spins are paused'; return; }
   if (spinsReady > 0) {
@@ -285,6 +296,7 @@ function applySession(data) {
   submittedToday = data.submittedToday;
   RULES = data.rules;
   spinsReady = u.spinsAvailable;
+  confettiIntensity = data.confettiIntensity ?? 60;
 
   renderStats(data);
   updateSpinButton();
@@ -319,9 +331,12 @@ on('spin', 'click', async () => {
   if (spinning || spinsReady <= 0) return;
   spinning = true;
   $('spin').disabled = true;
+  if ($('spin-all')) $('spin-all').classList.add('hidden');
   $('stamp').classList.remove('show');
   $('spin-status').textContent = 'Spinning…';
   say($('msg'), '');
+  Sound.ensure();
+  Sound.spinStart(3200);
 
   try {
     startSpin();                                     // wheel moves the instant you click
@@ -341,6 +356,9 @@ on('spin', 'click', async () => {
     $('stamp').classList.add('show');
     say($('msg'), `${money(result.prize)} in CIA Bucks landed in your bank.`, 'good');
 
+    Sound.win(result.prize >= 20 ? 6 : result.prize >= 10 ? 3 : 1);
+    Confetti.launch(confettiIntensity, result.prize === 20 ? 1.8 : result.prize === 10 ? 1.1 : 0.7);
+
     spinsReady = result.spinsAvailable;
     updateSpinButton();
 
@@ -354,6 +372,63 @@ on('spin', 'click', async () => {
     spinning = false;
   }
 });
+
+on('spin-all', 'click', async () => {
+  if (spinning || spinsReady <= 10) return;
+  spinning = true;
+  $('spin').disabled = true;
+  $('spin-all').disabled = true;
+  $('spin-all').classList.add('hidden');
+  $('stamp').classList.remove('show');
+  $('spin-status').textContent = `Spinning ${spinsReady}…`;
+  say($('msg'), '');
+  Sound.ensure();
+  Sound.spinStart(2600);
+
+  try {
+    startSpin();
+    const [res] = await Promise.all([
+      api('spinMany', { count: spinsReady }),
+      new Promise((r) => setTimeout(r, 900))
+    ]);
+
+    const highest = res.counts[20] ? 20 : res.counts[10] ? 10 : 5;
+    await settleSpin(highest);
+
+    setBalance(res.balance, true);
+    $('spin-count').textContent = res.spinsUsed;
+    $('last-deposit').textContent = when(new Date().toISOString()).split(' ').slice(0, 2).join(' ');
+    $('stamp').classList.add('show');
+
+    const parts = [];
+    if (res.counts[5])  parts.push(`${res.counts[5]}×$5`);
+    if (res.counts[10]) parts.push(`${res.counts[10]}×$10`);
+    if (res.counts[20]) parts.push(`${res.counts[20]}×$20`);
+    say($('msg'), `${res.n} spins → ${money(res.total)} in CIA Bucks! (${parts.join(', ')})`, 'good');
+
+    Sound.win(res.n);
+    Confetti.launch(confettiIntensity, Math.min(3.5, 1.4 + res.n / 8));
+
+    spinsReady = res.spinsAvailable;
+    updateSpinButton();
+
+    const fresh = await api('ledger');
+    renderLedger(fresh.entries);
+  } catch (err) {
+    stopSpin();
+    say($('msg'), err.message, 'bad');
+    loadSession();
+  } finally {
+    spinning = false;
+  }
+});
+
+function refreshMuteLabel() {
+  const m = $('mute');
+  if (m) m.textContent = Sound.muted ? 'Sound off' : 'Sound on';
+}
+on('mute', 'click', () => { Sound.setMuted(!Sound.muted); if (!Sound.muted) Sound.ensure(); refreshMuteLabel(); });
+refreshMuteLabel();
 
 on('submit-stats', 'click', async (e) => {
   const transfers = Math.floor(Number($('in-transfers').value));
