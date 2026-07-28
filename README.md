@@ -2,12 +2,22 @@
 
 A prize wheel for the Top Farmers Agent team. Members sign in with their work Google
 account, **log their daily stats to earn spins**, then spin for $5, $10 or $20 in CIA Bucks
-that land in a bank they can watch grow. Admins can adjust balances, add other admins, tune
-the odds, and review everyone's stats.
+that land in a bank they can watch grow. Members can also earn **Home Run Award baseballs**,
+handed out by an admin — 3 baseballs equal $2,500 toward an experience. Admins can move
+bucks and baseballs, add other admins, tune the odds, and review everyone's stats.
 
-- **Front end** — plain HTML/CSS/JS on GitHub Pages.
+- **Front end** — plain HTML/CSS/JS on GitHub Pages (`index.html` for members,
+  `admin.html` and `transactions.html` for admins).
 - **Back end** — a Google Apps Script web app bound to the spreadsheet.
 - **Database** — a Google Sheet with five tabs: `Users`, `Admins`, `Ledger`, `Stats`, `Config`.
+
+## Baseballs (Home Run Awards)
+
+Baseballs are separate from CIA Bucks. Bucks are the wheel currency and sit in a member's
+bank balance; baseballs are an award an admin grants by hand on the **Transactions** page.
+They show up as outline icons on the member's bank slip, grouped in threes, with a caption
+that tracks progress — every 3 baseballs is $2,500 toward an experience. Baseballs never
+touch the bucks balance; the $2,500 is honoured however you decide to honour it.
 
 ## Earning spins
 
@@ -45,12 +55,13 @@ The Apps Script web app does three things the browser can't be trusted with:
    permissions prompt. This creates the five tabs and seeds `cody@insurancesaleslab.com`
    as the first admin.
 
-> **Upgrading an existing sheet?** The `Users` tab gained columns (earned spins, stats)
-> and there's a new `Stats` tab. `setupSpreadsheet` only creates missing tabs — it won't
-> rearrange an old `Users` tab. If you already have a `Users` tab from an earlier version,
-> the simplest path is to delete the `Users`, `Ledger` and `Config` tabs (or start a brand
-> new spreadsheet) and run `setupSpreadsheet` again. Any test balances are lost, which is
-> fine before launch.
+> **Upgrading an existing sheet?** The `Users` tab keeps gaining columns as features are
+> added (earned spins, stats, and now a `Baseballs` column in column K). `setupSpreadsheet`
+> only creates missing *tabs* — it will not add a missing *column* to an existing `Users`
+> tab, and the code will error if the column isn't there. The simplest path before launch is
+> to delete the `Users`, `Ledger`, `Stats` and `Config` tabs (or start a brand new
+> spreadsheet) and run `setupSpreadsheet` again. If you have real data to keep, instead add a
+> `Baseballs` header in cell **K1** of the `Users` tab by hand, then redeploy.
 
 ### 2. The OAuth client ID
 
@@ -105,6 +116,12 @@ domain. To change the member domain later, use **Allowed domain** in the admin s
 convert to spins by the rules above. The wheel is disabled until they have spins to spend.
 If someone fat-fingers their numbers, an admin can hit **Re-log** next to their name in the
 Members table to let them enter the day again — spins already earned that day stay put.
+
+**Moving bucks and baseballs.** The **Transactions** page (`transactions.html`, admin only,
+linked from the header) is the dedicated place to add or remove CIA Bucks and award or take
+back baseballs. Positive amounts add, negative amounts remove, and every move is logged with
+your name and reason in a combined transaction log. The Admin page still has a quick bucks
+adjuster, but the Transactions page is the full record and the only place baseballs are set.
 
 **The odds.** Weights, not percentages — `60 / 30 / 10` means $5 shows up six times as often
 as $20. The admin panel shows the resulting percentages and the average payout per spin as
