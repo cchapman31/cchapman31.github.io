@@ -4,7 +4,8 @@ const SEGMENTS = [5, 10, 5, 20, 5, 10, 5, 10];   // visual layout only; the serv
 const SEG = 360 / SEGMENTS.length;
 
 const $ = (id) => document.getElementById(id);
-let rotation = 0;
+let angle = 0;          // current absolute rotation in degrees
+let rafId = null;
 let spinning = false;
 let cooldownTimer = null;
 
@@ -53,18 +54,55 @@ function buildWheel() {
     </svg>`;
 }
 
-/** Spin so a segment worth `prize` finishes under the pointer at 12 o'clock. */
-function spinTo(prize) {
+/** Start spinning immediately — no waiting on the network. */
+function startSpin() {
+  cancelAnimationFrame(rafId);
+  const rotor = $('wheel-rotor');
+  rotor.style.transition = 'none';
+  const velocity = 24;                       // degrees per frame while cruising
+  const loop = () => {
+    angle += velocity;
+    rotor.style.transform = `rotate(${angle}deg)`;
+    rafId = requestAnimationFrame(loop);
+  };
+  loop();
+}
+
+/** Ease the spinning wheel to rest on a segment worth `prize`. */
+function settleSpin(prize) {
+  cancelAnimationFrame(rafId);
+  const rotor = $('wheel-rotor');
+
   const matches = SEGMENTS.map((v, i) => (v === prize ? i : -1)).filter(i => i >= 0);
   const target = matches[Math.floor(Math.random() * matches.length)];
   const center = target * SEG + SEG / 2;
-  const jitter = (Math.random() - 0.5) * (SEG - 12);
+  const jitter = (Math.random() - 0.5) * (SEG - 16);
+  const restMod = ((360 - center - jitter) % 360 + 360) % 360;
 
-  rotation += 360 * 5 + ((360 - (center + jitter)) % 360) - (rotation % 360);
-  $('wheel-rotor').style.transform = `rotate(${rotation}deg)`;
+  // land at least two full turns ahead of where we are now
+  const from = angle;
+  const finalAngle = Math.ceil((from + 720 - restMod) / 360) * 360 + restMod;
 
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  return new Promise(r => setTimeout(r, reduced ? 500 : 5500));
+  const duration = reduced ? 350 : 2600;
+  const distance = finalAngle - from;
+  const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+  const t0 = performance.now();
+
+  return new Promise((resolve) => {
+    const step = (now) => {
+      const t = Math.min(1, (now - t0) / duration);
+      angle = from + distance * easeOut(t);
+      rotor.style.transform = `rotate(${angle}deg)`;
+      if (t < 1) rafId = requestAnimationFrame(step);
+      else resolve();
+    };
+    rafId = requestAnimationFrame(step);
+  });
+}
+
+function stopSpin() {
+  cancelAnimationFrame(rafId);
 }
 
 /* ------------------------------------------------------------- the note */
@@ -202,8 +240,16 @@ $('spin').addEventListener('click', async () => {
   say($('msg'), '');
 
   try {
-    const result = await api('spin');
-    await spinTo(result.prize);
+    startSpin();                                     // wheel moves the instant you click
+
+    // let the network call ride along with the spin; keep a floor so a fast
+    // response doesn't make the wheel jerk to a halt
+    const [result] = await Promise.all([
+      api('spin'),
+      new Promise((r) => setTimeout(r, 900))
+    ]);
+
+    await settleSpin(result.prize);
 
     setBalance(result.balance, true);
     $('spin-count').textContent = result.spins;
@@ -215,6 +261,7 @@ $('spin').addEventListener('click', async () => {
     renderLedger(fresh.entries);
     startCooldown(result.cooldownLeft);
   } catch (err) {
+    stopSpin();
     say($('msg'), err.message, 'bad');
     $('spin-status').textContent = '';
     $('spin').disabled = false;

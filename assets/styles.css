@@ -132,7 +132,7 @@ label {
 .stage { text-align: center; }
 .wheel-wrap { position: relative; width: min(100%, 380px); margin: 0 auto; aspect-ratio: 1; }
 .wheel { width: 100%; height: 100%; display: block; filter: drop-shadow(0 18px 34px rgba(0,0,0,.55)); }
-#wheel-rotor { transform-origin: 200px 200px; transition: transform 5.4s cubic-bezier(.15,.82,.16,1); }
+#wheel-rotor { transform-origin: 200px 200px; }
 .pointer { position: absolute; top: -6px; left: 50%; transform: translateX(-50%); z-index: 2; }
 
 .spin-btn {
@@ -237,6 +237,5 @@ tbody tr:hover { background: rgba(255,255,255,.028); }
 .hidden { display: none !important; }
 
 @media (prefers-reduced-motion: reduce) {
-  #wheel-rotor { transition-duration: .4s; }
   .stamp { transition: opacity .2s; }
 }
