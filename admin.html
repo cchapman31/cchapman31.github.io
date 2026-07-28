@@ -38,8 +38,8 @@
   <dl class="tiles">
     <div class="tile"><dt>Bucks issued</dt><dd id="t-issued">$0</dd></div>
     <div class="tile"><dt>Members</dt><dd id="t-members">0</dd></div>
-    <div class="tile"><dt>Total spins</dt><dd id="t-spins">0</dd></div>
-    <div class="tile"><dt>Average bank</dt><dd id="t-avg">$0</dd></div>
+    <div class="tile"><dt>Spins taken</dt><dd id="t-spins">0</dd></div>
+    <div class="tile"><dt>Spins outstanding</dt><dd id="t-out">0</dd></div>
   </dl>
 
   <div class="panels">
@@ -72,12 +72,10 @@
       <div class="form-grid">
         <div><label for="cfg-spinsAllowed">Spinning</label>
           <select id="cfg-spinsAllowed"><option value="true">Open</option><option value="false">Paused</option></select></div>
-        <div><label for="cfg-cooldownSeconds">Wait between spins</label>
-          <select id="cfg-cooldownSeconds">
-            <option value="0">No wait</option><option value="3600">1 hour</option>
-            <option value="43200">12 hours</option><option value="86400">24 hours</option>
-            <option value="604800">7 days</option>
-          </select></div>
+        <div><label for="cfg-transferThreshold">Transfers per first spin</label>
+          <input id="cfg-transferThreshold" type="number" min="1"></div>
+        <div><label for="cfg-occSpins">Spins per OCC</label>
+          <input id="cfg-occSpins" type="number" min="0"></div>
         <div><label for="cfg-allowedDomain">Allowed domain</label><input id="cfg-allowedDomain"></div>
       </div>
       <p class="eyebrow" style="margin-top:6px">Odds</p>
@@ -94,11 +92,27 @@
       <h2>Members</h2>
       <div class="scroll">
         <table>
-          <thead><tr><th>Member</th><th>Email</th><th class="num">Spins</th><th class="num">Balance</th><th>Last spin</th></tr></thead>
+          <thead><tr>
+            <th>Member</th><th>Email</th>
+            <th class="num">Transfers</th><th class="num">OCCs</th>
+            <th class="num">Ready</th><th class="num">Taken</th>
+            <th class="num">Balance</th><th></th>
+          </tr></thead>
           <tbody id="members-body"></tbody>
         </table>
       </div>
       <p id="members-empty" class="empty hidden">No one has signed in yet.</p>
+    </section>
+
+    <section class="panel wide">
+      <h2>Daily stats log</h2>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Logged</th><th>Day</th><th>Member</th><th class="num">Transfers</th><th class="num">OCCs</th><th class="num">Spins</th></tr></thead>
+          <tbody id="stats-body"></tbody>
+        </table>
+      </div>
+      <p id="stats-empty" class="empty hidden">No stats logged yet.</p>
     </section>
 
     <section class="panel wide">
