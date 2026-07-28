@@ -11,6 +11,23 @@ bucks and baseballs, add other admins, tune the odds, and review everyone's stat
 - **Back end** — a Google Apps Script web app bound to the spreadsheet.
 - **Database** — a Google Sheet with five tabs: `Users`, `Admins`, `Ledger`, `Stats`, `Config`.
 
+## Roles
+
+There are three levels of access, managed from the **Roles** panel on the Admin page:
+
+- **Member** — the default for anyone with a `@topfarmersagent.com` account. Logs stats and spins.
+- **Team Lead** — everything a member can do, plus a **Your team** panel on the wheel page
+  where they can trigger a re-log for a teammate who mis-entered today's stats.
+- **Admin** — full access to the Admin and Transactions pages.
+
+Assign a role by entering someone's email and picking Admin or Team Lead; it works whether or
+not they've signed in yet. Assigning a role to someone who already has one changes it. The
+owner (`cody@insurancesaleslab.com`) is always an admin and can't be removed. Anyone with a
+role can sign in regardless of domain, which is how the owner's non-`topfarmersagent.com`
+account gets in.
+
+Roles live in the **Roles** tab of the spreadsheet (this replaced the old `Admins` tab).
+
 ## Baseballs (Home Run Awards)
 
 Baseballs are separate from CIA Bucks. Bucks are the wheel currency and sit in a member's
@@ -63,6 +80,10 @@ The Apps Script web app does three things the browser can't be trusted with:
 > to delete the `Users`, `Ledger`, `Stats` and `Config` tabs (or start a brand new
 > spreadsheet) and run `setupSpreadsheet` again. If you have real data to keep, instead add a
 > `Baseballs` header in cell **K1** of the `Users` tab by hand, then redeploy.
+>
+> The old `Admins` tab is now a `Roles` tab (Email, Role, AddedBy, AddedAt). Running
+> `setupSpreadsheet` creates `Roles` and, if an old `Admins` tab exists, copies those emails
+> over as admins automatically. You can safely delete the leftover `Admins` tab afterward.
 
 ### 2. The OAuth client ID
 
