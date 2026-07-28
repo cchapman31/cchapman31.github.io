@@ -267,7 +267,14 @@ function showGate(message) {
 
 /* -------------------------------------------------------------- wiring */
 
-$('spin').addEventListener('click', async () => {
+// Attach a listener only if the element exists, so a missing feature element
+// (e.g. a stale index.html) can never halt the script before sign-in mounts.
+function on(id, event, handler) {
+  const el = $(id);
+  if (el) el.addEventListener(event, handler);
+}
+
+on('spin', 'click', async () => {
   if (spinning || spinsReady <= 0) return;
   spinning = true;
   $('spin').disabled = true;
@@ -307,7 +314,7 @@ $('spin').addEventListener('click', async () => {
   }
 });
 
-$('submit-stats').addEventListener('click', async (e) => {
+on('submit-stats', 'click', async (e) => {
   const transfers = Math.floor(Number($('in-transfers').value));
   const occs = Math.floor(Number($('in-occs').value));
   if (!(transfers >= 0) || !(occs >= 0)) return say($('msg'), 'Enter whole numbers for transfers and OCCs.', 'bad');
@@ -327,9 +334,10 @@ $('submit-stats').addEventListener('click', async (e) => {
   }
 });
 
-['in-transfers', 'in-occs'].forEach(id => $(id).addEventListener('input', updateEarnPreview));
+on('in-transfers', 'input', updateEarnPreview);
+on('in-occs', 'input', updateEarnPreview);
 
-$('sign-out').addEventListener('click', () => { signOut(); location.reload(); });
+on('sign-out', 'click', () => { signOut(); location.reload(); });
 
 /* ---------------------------------------------------------------- boot */
 

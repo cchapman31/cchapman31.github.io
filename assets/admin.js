@@ -148,7 +148,14 @@ async function run(btn, fn, successMessage) {
 
 /* ---------------------------------------------------------------- wiring */
 
-$('adj-go').addEventListener('click', (e) => {
+// Attach a listener only if the element exists, so a stale/mismatched page
+// can't halt the script before sign-in mounts.
+function on(id, event, handler) {
+  const el = $(id);
+  if (el) el.addEventListener(event, handler);
+}
+
+on('adj-go', 'click', (e) => {
   const email = $('adj-email').value;
   const amount = Number($('adj-amount').value);
   if (!email) return say($('msg'), 'Pick a member first.', 'bad');
@@ -159,28 +166,28 @@ $('adj-go').addEventListener('click', (e) => {
   ).then(() => { $('adj-amount').value = ''; $('adj-note').value = ''; });
 });
 
-$('add-admin').addEventListener('click', (e) => {
+on('add-admin', 'click', (e) => {
   const email = $('new-admin').value.trim();
   if (!email) return say($('msg'), 'Enter an email address to add.', 'bad');
   run(e.target, () => api('addAdmin', { email }), `${email} can now open the admin area.`)
     .then(() => { $('new-admin').value = ''; });
 });
 
-$('members-body').addEventListener('click', (e) => {
+on('members-body', 'click', (e) => {
   const email = e.target.dataset?.relog;
   if (!email) return;
   if (!confirm(`Let ${email} log stats again today? Spins already earned today stay.`)) return;
   run(e.target, () => api('clearStatLock', { email }), `${email} can log stats again today.`);
 });
 
-$('admin-chips').addEventListener('click', (e) => {
+on('admin-chips', 'click', (e) => {
   const email = e.target.dataset?.remove;
   if (!email) return;
   if (!confirm(`Remove admin access for ${email}?`)) return;
   run(e.target, () => api('removeAdmin', { email }), `${email} no longer has admin access.`);
 });
 
-$('save-config').addEventListener('click', (e) => {
+on('save-config', 'click', (e) => {
   const keys = ['spinsAllowed', 'transferThreshold', 'occSpins', 'allowedDomain', 'weight5', 'weight10', 'weight20'];
   run(e.target, async () => {
     for (const key of keys) {
@@ -190,10 +197,9 @@ $('save-config').addEventListener('click', (e) => {
   }, 'Settings saved.');
 });
 
-['cfg-weight5', 'cfg-weight10', 'cfg-weight20'].forEach(id =>
-  $(id).addEventListener('input', updateOdds));
+['cfg-weight5', 'cfg-weight10', 'cfg-weight20'].forEach(id => on(id, 'input', updateOdds));
 
-$('sign-out').addEventListener('click', () => { signOut(); location.href = 'index.html'; });
+on('sign-out', 'click', () => { signOut(); location.href = 'index.html'; });
 
 /* ------------------------------------------------------------------ boot */
 
