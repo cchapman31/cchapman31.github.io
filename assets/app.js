@@ -49,7 +49,7 @@ function buildWheel() {
       <g id="wheel-rotor">
         ${sectors}${ticks}
         <circle cx="200" cy="200" r="58" fill="#081321" stroke="#c9a227" stroke-width="2"/>
-        <image href="assets/logo.png" x="150" y="150" width="100" height="100" preserveAspectRatio="xMidYMid meet"/>
+        <image href="${LOGO_URL}" x="150" y="150" width="100" height="100" preserveAspectRatio="xMidYMid meet"/>
       </g>
     </svg>`;
 }
@@ -208,6 +208,33 @@ function renderBaseballs(count) {
     : `${toNext} more baseball${toNext === 1 ? '' : 's'} for a $2,500 experience`;
 }
 
+function renderMvps(count) {
+  count = Math.max(0, Math.floor(count || 0));
+  const wrap = $('note-mvp'), host = $('mvp-icons');
+  const countEl = $('mvp-count'), cap = $('mvp-cap');
+  if (!host || !cap) return;
+
+  if (count === 0) {
+    if (wrap) wrap.classList.add('empty');
+    if (countEl) countEl.textContent = 'None yet';
+    host.innerHTML = trophySVG(false) + trophySVG(false) + trophySVG(false);
+    cap.textContent = 'Each MVP = $300 experience';
+    return;
+  }
+
+  if (wrap) wrap.classList.remove('empty');
+  if (countEl) countEl.textContent = `${count} 🏆`;
+
+  const MAX = 12;
+  const shown = Math.min(count, MAX);
+  let html = '';
+  for (let i = 0; i < shown; i++) html += trophySVG(true);
+  if (count > MAX) html += `<span class="awards-more">+${count - MAX}</span>`;
+  host.innerHTML = html;
+
+  cap.textContent = `${money(count * 300)} unlocked · each MVP = $300`;
+}
+
 function updateSpinButton() {
   const btn = $('spin'), status = $('spin-status'), all = $('spin-all');
   $('spins-count').textContent = spinsReady;
@@ -277,6 +304,7 @@ function applySession(data) {
   $('spin-count').textContent = u.spinsUsed;
   setBalance(u.balance);
   renderBaseballs(u.baseballs);
+  renderMvps(u.mvps);
 
   const bucksTypes = ['spin', 'credit', 'debit'];
   const deposits = data.entries.filter(e => bucksTypes.includes(e.type));
@@ -500,6 +528,9 @@ document.getElementById('gate-seal').innerHTML = logoImg(120, 'gate-logo');
 document.getElementById('mast-seal').innerHTML = logoImg(38, 'seal');
 $('domain-label').textContent = '@' + CFG.ALLOWED_DOMAIN;
 buildWheel();
+
+// Confirm which logo path actually loads, then rebuild the wheel with it if needed.
+resolveLogo().then((url) => { if (url !== 'assets/logo.png') buildWheel(); });
 
 // If we already hold a token, load straight in without touching Google's login UI.
 // showGate() will set up sign-in only if that token turns out to be missing or expired.

@@ -89,9 +89,46 @@ function rosetteSVG(size, stroke, opacity = 0.55) {
 }
 
 /** The Cherchenko Insurance Agency badge, used for the masthead, sign-in gate, and wheel hub. */
+// Whichever of these loads first is used everywhere. This makes the logo work
+// whether the committed file is assets/logo.png or the original upload name.
+const LOGO_CANDIDATES = ['assets/logo.png', 'assets/CIA_Logo_White.png'];
+let LOGO_URL = LOGO_CANDIDATES[0];
+
+/** Probe the candidates and settle LOGO_URL on the first that actually loads. */
+function resolveLogo() {
+  return new Promise((resolve) => {
+    let i = 0;
+    const tryNext = () => {
+      if (i >= LOGO_CANDIDATES.length) return resolve(LOGO_URL);
+      const url = LOGO_CANDIDATES[i++];
+      const img = new Image();
+      img.onload = () => { LOGO_URL = url; resolve(url); };
+      img.onerror = tryNext;
+      img.src = url;
+    };
+    tryNext();
+  });
+}
+
 function logoImg(size, cls = 'seal') {
-  return `<img class="${cls}" src="assets/logo.png" alt="Cherchenko Insurance Agency"
-    width="${size}" height="${size}" style="width:${size}px;height:${size}px;object-fit:contain">`;
+  const alt = LOGO_CANDIDATES[1];
+  return `<img class="${cls}" src="${LOGO_CANDIDATES[0]}" alt="Cherchenko Insurance Agency"
+    width="${size}" height="${size}"
+    style="width:${size}px;height:${size}px;object-fit:contain"
+    onerror="this.onerror=null;this.src='${alt}'">`;
+}
+
+/** Trophy outline icon for MVP awards. `earned` fills it gold; otherwise a faint ghost slot. */
+function trophySVG(earned, size = 18) {
+  const stroke = earned ? '#c9a227' : 'rgba(22,40,62,.26)';
+  const fill   = earned ? 'rgba(201,162,39,.14)' : 'transparent';
+  return `<svg class="bball" viewBox="0 0 24 24" width="${size}" height="${size}" aria-hidden="true">
+    <path d="M7 4 h10 v3.2 a5 5 0 0 1 -10 0 Z" fill="${fill}" stroke="${stroke}" stroke-width="1.4" stroke-linejoin="round"/>
+    <path d="M7 4.8 H4.4 v1.7 a3 3 0 0 0 3 2.6" fill="none" stroke="${stroke}" stroke-width="1.3"/>
+    <path d="M17 4.8 H19.6 v1.7 a3 3 0 0 1 -3 2.6" fill="none" stroke="${stroke}" stroke-width="1.3"/>
+    <path d="M12 12.2 V15" fill="none" stroke="${stroke}" stroke-width="1.4"/>
+    <path d="M8.8 19.4 h6.4 l-.7 -2.2 a1 1 0 0 0 -1 -.7 h-3 a1 1 0 0 0 -1 .7 Z" fill="${fill}" stroke="${stroke}" stroke-width="1.4" stroke-linejoin="round"/>
+  </svg>`;
 }
 
 /** Baseball outline icon. `earned` fills it in the stamp red; otherwise a faint ghost slot. */

@@ -2,12 +2,16 @@
 
 const $ = (id) => document.getElementById(id);
 
-const TXN_TYPES = ['credit', 'debit', 'baseball-add', 'baseball-remove'];
+const TXN_TYPES = ['credit', 'debit', 'baseball-add', 'baseball-remove', 'mvp-add', 'mvp-remove'];
 const TXN_LABEL = {
   credit: 'Bucks added', debit: 'Bucks removed',
-  'baseball-add': 'Baseball added', 'baseball-remove': 'Baseball removed'
+  'baseball-add': 'Baseball added', 'baseball-remove': 'Baseball removed',
+  'mvp-add': 'MVP added', 'mvp-remove': 'MVP removed'
 };
-const isBaseball = (type) => type === 'baseball-add' || type === 'baseball-remove';
+const unitOf = (type) =>
+  (type === 'baseball-add' || type === 'baseball-remove') ? '⚾'
+  : (type === 'mvp-add' || type === 'mvp-remove') ? '🏆'
+  : '$';
 
 let members = [];
 
@@ -30,7 +34,7 @@ function renderHoldings() {
   const email = $('txn-email').value;
   const u = members.find(m => m.email === email);
   $('holdings').textContent = u
-    ? `${esc(u.name)} holds ${money(u.balance)} and ${u.baseballs} baseball${u.baseballs === 1 ? '' : 's'}.`
+    ? `${esc(u.name)} holds ${money(u.balance)}, ${u.baseballs} baseball${u.baseballs === 1 ? '' : 's'}, and ${u.mvps} MVP award${u.mvps === 1 ? '' : 's'}.`
     : '';
 }
 
@@ -38,11 +42,11 @@ function renderLog(entries) {
   const rows = entries.filter(e => TXN_TYPES.includes(e.type));
   $('txn-empty').classList.toggle('hidden', rows.length > 0);
   $('txn-log-body').innerHTML = rows.map(e => {
-    const ball = isBaseball(e.type);
-    const amount = ball
-      ? `${e.amount > 0 ? '+' : '−'}${Math.abs(e.amount)} ⚾`
-      : `${e.amount > 0 ? '+' : '−'}${money(Math.abs(e.amount))}`;
-    const after = ball ? `${e.balanceAfter} ⚾` : money(e.balanceAfter);
+    const unit = unitOf(e.type);
+    const amount = unit === '$'
+      ? `${e.amount > 0 ? '+' : '−'}${money(Math.abs(e.amount))}`
+      : `${e.amount > 0 ? '+' : '−'}${Math.abs(e.amount)} ${unit}`;
+    const after = unit === '$' ? money(e.balanceAfter) : `${e.balanceAfter} ${unit}`;
     return `
       <tr>
         <td class="muted">${when(e.at)}</td>
@@ -110,6 +114,9 @@ on('txn-go', 'click', async (e) => {
     if (kind === 'baseballs') {
       const r = await api('adjustBaseballs', { email, amount, note });
       say($('msg'), `${email} now holds ${r.baseballs} baseball${r.baseballs === 1 ? '' : 's'}.`, 'good');
+    } else if (kind === 'mvp') {
+      const r = await api('adjustMvps', { email, amount, note });
+      say($('msg'), `${email} now holds ${r.mvps} MVP award${r.mvps === 1 ? '' : 's'}.`, 'good');
     } else {
       const r = await api('adjust', { email, amount, note });
       say($('msg'), `${email} is now at ${money(r.balance)}.`, 'good');

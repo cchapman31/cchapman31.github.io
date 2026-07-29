@@ -5,7 +5,8 @@ const OWNER = 'cody@insurancesaleslab.com';
 const LABELS = { spin: 'Wheel spin', credit: 'Manual credit', debit: 'Manual debit',
                  'role-set': 'Role assigned', 'role-remove': 'Role removed', config: 'Setting changed',
                  stats: 'Stats logged', 'stats-reset': 'Stat lock cleared',
-                 'baseball-add': 'Baseball added', 'baseball-remove': 'Baseball removed' };
+                 'baseball-add': 'Baseball added', 'baseball-remove': 'Baseball removed',
+                 'mvp-add': 'MVP added', 'mvp-remove': 'MVP removed' };
 
 let state = { users: [], roles: [], config: {}, today: '' };
 
@@ -24,6 +25,7 @@ function renderOverview(d) {
   $('t-spins').textContent   = d.totals.spinsUsed;
   $('t-out').textContent     = d.totals.spinsOut;
   $('t-baseballs').textContent = d.totals.baseballs;
+  $('t-mvp').textContent = d.totals.mvps;
 
   // members table
   const roleTag = (email) => roleOf[email]
@@ -37,6 +39,7 @@ function renderOverview(d) {
       <td class="num">${u.transfers}</td>
       <td class="num">${u.occs}</td>
       <td class="num" style="color:var(--stamp)">${u.baseballs}</td>
+      <td class="num" style="color:var(--gold-lit)">${u.mvps}</td>
       <td class="num" style="color:var(--gold-lit)">${u.spinsAvailable}</td>
       <td class="num muted">${u.spinsUsed}</td>
       <td class="num" style="color:var(--gold-lit);font-weight:600">${money(u.balance)}</td>
@@ -47,8 +50,8 @@ function renderOverview(d) {
 
   // member pickers for adjustments (bucks + baseballs)
   const options = d.users.map(u =>
-    `<option value="${esc(u.email)}">${esc(u.name)} — ${esc(u.email)} (${money(u.balance)}, ${u.baseballs}⚾)</option>`).join('');
-  ['adj-email', 'ball-email'].forEach(id => {
+    `<option value="${esc(u.email)}">${esc(u.name)} — ${esc(u.email)} (${money(u.balance)}, ${u.baseballs}⚾, ${u.mvps}🏆)</option>`).join('');
+  ['adj-email', 'ball-email', 'mvp-email'].forEach(id => {
     const picker = $(id);
     if (!picker) return;
     const keep = picker.value;
@@ -189,6 +192,17 @@ on('ball-go', 'click', (e) => {
     () => api('adjustBaseballs', { email, amount, note: $('ball-note').value }),
     (r) => `${email} now holds ${r.baseballs} baseball${r.baseballs === 1 ? '' : 's'}.`
   ).then(() => { $('ball-amount').value = ''; $('ball-note').value = ''; });
+});
+
+on('mvp-go', 'click', (e) => {
+  const email = $('mvp-email').value;
+  const amount = Math.round(Number($('mvp-amount').value));
+  if (!email) return say($('msg'), 'Pick a member first.', 'bad');
+  if (!amount) return say($('msg'), 'Enter a number of MVP awards to award or take back.', 'bad');
+  run(e.target,
+    () => api('adjustMvps', { email, amount, note: $('mvp-note').value }),
+    (r) => `${email} now holds ${r.mvps} MVP award${r.mvps === 1 ? '' : 's'}.`
+  ).then(() => { $('mvp-amount').value = ''; $('mvp-note').value = ''; });
 });
 
 on('role-go', 'click', (e) => {
