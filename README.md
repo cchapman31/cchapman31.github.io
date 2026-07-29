@@ -28,14 +28,18 @@ account gets in.
 
 Roles live in the **Roles** tab of the spreadsheet (this replaced the old `Admins` tab).
 
-## Baseballs (Home Run Awards)
+## Awards: baseballs and MVP
 
-Baseballs are separate from CIA Bucks. Bucks are the wheel currency and sit in a member's
-bank balance; baseballs are an award an admin grants by hand on the **Transactions** page or
-the **Award baseballs** panel on the Admin page. They show up as outline icons on the
-member's bank slip, and every completed set of 3 is boxed together to show it's a full
-$2,500 award. Baseballs never touch the bucks balance; the $2,500 is honoured however you
-decide to honour it.
+Two separate hand-granted honors sit on the member's bank slip, both distinct from CIA Bucks
+(which are the wheel currency in their bank balance):
+
+- **Baseballs (Home Run Awards)** — shown as baseball icons, grouped in threes with each
+  completed trio boxed together. Every 3 baseballs is $2,500 toward an experience.
+- **MVP awards** — shown as trophy icons. Each MVP is worth $300 toward an experience.
+
+Admins grant either one by hand from the **Award baseballs** / **Award MVP** panels on the
+Admin page, or from the **Transactions** page. Neither touches the bucks balance; the dollar
+values are honoured however you decide to honour them.
 
 ## Earning spins
 
@@ -78,8 +82,9 @@ The Apps Script web app does three things the browser can't be trusted with:
 > only creates missing *tabs* — it will not add a missing *column* to an existing `Users`
 > tab, and the code will error if the column isn't there. The simplest path before launch is
 > to delete the `Users`, `Ledger`, `Stats` and `Config` tabs (or start a brand new
-> spreadsheet) and run `setupSpreadsheet` again. If you have real data to keep, instead add a
-> `Baseballs` header in cell **K1** of the `Users` tab by hand, then redeploy.
+> spreadsheet) and run `setupSpreadsheet` again. If you have real data to keep, instead add
+> the missing headers by hand — `Baseballs` in cell **K1** and `MVP` in cell **L1** of the
+> `Users` tab — then redeploy.
 >
 > The old `Admins` tab is now a `Roles` tab (Email, Role, AddedBy, AddedAt). Running
 > `setupSpreadsheet` creates `Roles` and, if an old `Admins` tab exists, copies those emails
