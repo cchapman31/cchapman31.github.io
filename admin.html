@@ -42,6 +42,7 @@
     <div class="tile"><dt>Spins taken</dt><dd id="t-spins">0</dd></div>
     <div class="tile"><dt>Spins outstanding</dt><dd id="t-out">0</dd></div>
     <div class="tile"><dt>Baseballs awarded</dt><dd id="t-baseballs">0</dd></div>
+    <div class="tile"><dt>MVP awards</dt><dd id="t-mvp">0</dd></div>
   </dl>
 
   <div class="panels">
@@ -71,6 +72,20 @@
       </div>
       <button id="ball-go" class="btn btn-solid">Award baseballs</button>
       <p class="fineprint">Home Run Awards, added by hand. 3 baseballs = $2,500 toward an experience. Positive awards, negative takes back.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Award MVP</h2>
+      <div class="form-grid">
+        <div style="grid-column:1/-1">
+          <label for="mvp-email">Member</label>
+          <select id="mvp-email"></select>
+        </div>
+        <div><label for="mvp-amount">MVP awards</label><input id="mvp-amount" type="number" step="1" placeholder="1 or -1"></div>
+        <div><label for="mvp-note">Reason</label><input id="mvp-note" placeholder="MVP of the month"></div>
+      </div>
+      <button id="mvp-go" class="btn btn-solid">Award MVP</button>
+      <p class="fineprint">MVP awards, added by hand. Each MVP = $300 toward an experience. Positive awards, negative takes back.</p>
     </section>
 
     <section class="panel">
@@ -119,7 +134,7 @@
           <thead><tr>
             <th>Member</th><th>Email</th>
             <th class="num">Transfers</th><th class="num">OCCs</th>
-            <th class="num">⚾</th>
+            <th class="num">⚾</th><th class="num">🏆</th>
             <th class="num">Ready</th><th class="num">Taken</th>
             <th class="num">Balance</th><th></th>
           </tr></thead>
