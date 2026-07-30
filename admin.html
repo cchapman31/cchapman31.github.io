@@ -95,13 +95,16 @@
           <input id="role-email" type="email" placeholder="name@topfarmersagent.com"></div>
         <div><label for="role-kind">Role</label>
           <select id="role-kind">
+            <option value="sdr">SDR</option>
+            <option value="sales">Sales</option>
+            <option value="service">Service</option>
             <option value="lead">Team Lead</option>
             <option value="admin">Admin</option>
           </select></div>
         <div style="align-self:end"><button id="role-go" class="btn btn-solid" style="width:100%">Assign role</button></div>
       </div>
       <div id="role-chips" class="chip-list"></div>
-      <p class="fineprint">Admins can do everything. Team leads can spin and trigger a re-log for teammates. Assigning a role to someone who already has one changes it. The owner is always an admin.</p>
+      <p class="fineprint">Admins can do everything. Team leads can spin, re-log teammates, and assign transfers. SDRs log their own transfers and OCCs; Sales and Service don't — a lead assigns their transfers. Assigning a role to someone who already has one changes it. The owner is always an admin.</p>
     </section>
 
     <section class="panel">
