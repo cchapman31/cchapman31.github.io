@@ -13,20 +13,26 @@ bucks and baseballs, add other admins, tune the odds, and review everyone's stat
 
 ## Roles
 
-There are three levels of access, managed from the **Roles** panel on the Admin page:
+Roles are managed from the **Roles** panel on the Admin page. Each person has one role (or
+none). Assign a role by entering an email and picking one — it works whether or not they've
+signed in yet, and re-assigning changes an existing person's role.
 
-- **Member** — the default for anyone with a `@topfarmersagent.com` account. Logs stats and spins.
-- **Team Lead** — everything a member can do, plus a **Your team** panel on the wheel page
-  where they can trigger a re-log for a teammate who mis-entered today's stats.
-- **Admin** — full access to the Admin and Transactions pages.
+- **Member** (no role) — signs in, logs their own transfers and OCCs, spins.
+- **SDR** — same as a member: logs their own transfers and OCCs to earn spins.
+- **Sales** / **Service** — do **not** log their own stats. A Team Lead or Admin assigns
+  their transfers (and OCCs), which grant spins by the usual rule. Their wheel page shows a
+  "your transfers are assigned for you" note instead of the stat-entry card.
+- **Team Lead** — logs their own stats and spins, plus a **Your team** panel and an
+  **Assign transfers** panel on the wheel page: re-log a teammate, or post transfers/OCCs to
+  Sales and Service people.
+- **Admin** — full access to the Admin and Transactions pages, and everything a lead can do.
 
-Assign a role by entering someone's email and picking Admin or Team Lead; it works whether or
-not they've signed in yet. Assigning a role to someone who already has one changes it. The
-owner (`cody@insurancesaleslab.com`) is always an admin and can't be removed. Anyone with a
-role can sign in regardless of domain, which is how the owner's non-`topfarmersagent.com`
-account gets in.
+The owner (`cody@insurancesaleslab.com`) is always an admin and can't be removed. Anyone with
+a role can sign in regardless of domain. Roles live in the **Roles** tab of the spreadsheet.
 
-Roles live in the **Roles** tab of the spreadsheet (this replaced the old `Admins` tab).
+Assigning transfers is separate from a member's own once-a-day self-log — a lead can post to
+someone as often as needed, and it never uses up that person's daily entry. Every assignment
+is recorded in the `Stats` tab and the `Ledger`, stamped with who assigned it.
 
 ## Awards: baseballs and MVP
 
