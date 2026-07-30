@@ -28,13 +28,10 @@ function renderOverview(d) {
   $('t-mvp').textContent = d.totals.mvps;
 
   // members table
-  const roleTag = (email) => roleOf[email]
-    ? ` <span class="tag" style="color:${roleOf[email] === 'admin' ? 'var(--gold)' : 'var(--green-lit)'}">${roleOf[email] === 'admin' ? 'admin' : 'lead'}</span>`
-    : '';
   $('members-empty').classList.toggle('hidden', d.users.length > 0);
   $('members-body').innerHTML = d.users.map(u => `
     <tr>
-      <td>${esc(u.name)}${roleTag(u.email)}</td>
+      <td>${esc(u.name)}${roleTag(roleOf[u.email])}</td>
       <td class="muted">${esc(u.email)}</td>
       <td class="num">${u.transfers}</td>
       <td class="num">${u.occs}</td>
@@ -62,8 +59,8 @@ function renderOverview(d) {
   // role chips
   $('role-chips').innerHTML = d.roles.map(r => {
     const locked = r.email === OWNER;
-    const label = r.role === 'admin' ? 'Admin' : 'Team Lead';
-    return `<span class="chip ${locked ? 'locked' : ''}"><b style="font-weight:600">${label}</b> · ${esc(r.email)}${
+    const label = ROLE_LABEL[r.role] || r.role;
+    return `<span class="chip ${locked ? 'locked' : ''}"><b style="font-weight:600;color:${ROLE_COLOR[r.role] || 'inherit'}">${label}</b> · ${esc(r.email)}${
       locked ? '' : `<button data-remove="${esc(r.email)}" title="Remove role" aria-label="Remove role for ${esc(r.email)}">&times;</button>`}</span>`;
   }).join('');
 
@@ -210,7 +207,7 @@ on('role-go', 'click', (e) => {
   const role = $('role-kind').value;
   if (!email) return say($('msg'), 'Enter an email address.', 'bad');
   run(e.target, () => api('addRole', { email, role }),
-    `${email} is now a ${role === 'admin' ? 'admin' : 'team lead'}.`)
+    `${email} is now ${ROLE_LABEL[role] || role}.`)
     .then(() => { $('role-email').value = ''; });
 });
 

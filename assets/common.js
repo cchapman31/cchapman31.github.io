@@ -3,6 +3,13 @@
 const CFG = window.CIA_CONFIG;
 const TOKEN_KEY = 'cia_bucks_token';
 
+const ROLE_LABEL = { admin: 'Admin', lead: 'Team Lead', sdr: 'SDR', sales: 'Sales', service: 'Service' };
+const ROLE_COLOR = { admin: 'var(--gold)', lead: 'var(--green-lit)', sdr: '#6aa9d6', sales: '#c79be0', service: '#e0a56a' };
+function roleTag(role) {
+  if (!role || !ROLE_LABEL[role]) return '';
+  return ` <span class="tag" style="color:${ROLE_COLOR[role] || 'inherit'}">${ROLE_LABEL[role]}</span>`;
+}
+
 /* ------------------------------------------------------------------- api */
 
 async function api(action, payload = {}) {

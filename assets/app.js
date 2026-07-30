@@ -11,6 +11,7 @@ let spinning = false;
 let spinsReady = 0;
 let spinsAllowed = true;
 let submittedToday = false;
+let canSelfLog = true;
 let confettiIntensity = 60;
 let RULES = { transferThreshold: 20, occSpins: 1 };
 
@@ -252,9 +253,11 @@ function updateSpinButton() {
     status.textContent = `${spinsReady} spin${spinsReady === 1 ? '' : 's'} ready`;
   } else {
     btn.disabled = true;
-    status.textContent = submittedToday
-      ? 'Out of spins — log stats again tomorrow'
-      : "Log today's stats to earn spins";
+    status.textContent = !canSelfLog
+      ? 'Spins arrive when your lead assigns transfers'
+      : submittedToday
+        ? 'Out of spins — log stats again tomorrow'
+        : "Log today's stats to earn spins";
   }
 }
 
@@ -268,7 +271,17 @@ function updateEarnPreview() {
 }
 
 function renderStats(data) {
-  const entry = $('stats-entry'), done = $('stats-done');
+  const entry = $('stats-entry'), done = $('stats-done'), locked = $('stats-locked');
+
+  // Sales and Service don't self-log — a lead assigns their transfers
+  if (!canSelfLog) {
+    entry.classList.add('hidden');
+    done.classList.add('hidden');
+    if (locked) locked.classList.remove('hidden');
+    return;
+  }
+  if (locked) locked.classList.add('hidden');
+
   $('rules-note').textContent =
     `${RULES.transferThreshold} transfers = 1 spin, then +1 per transfer after. ` +
     `Each OCC = ${RULES.occSpins} spin${RULES.occSpins === 1 ? '' : 's'}. Log once a day.`;
@@ -317,6 +330,7 @@ function applySession(data) {
 
   spinsAllowed = data.spinsAllowed;
   submittedToday = data.submittedToday;
+  canSelfLog = data.canSelfLog !== false;
   RULES = data.rules;
   spinsReady = u.spinsAvailable;
   confettiIntensity = data.confettiIntensity ?? 60;
@@ -324,13 +338,12 @@ function applySession(data) {
   renderStats(data);
   updateSpinButton();
 
-  // Team leads and admins can trigger a re-log for teammates
-  const canRelog = u.role === 'lead' || u.role === 'admin';
-  const teamPanel = $('team-panel');
-  if (teamPanel) {
-    teamPanel.classList.toggle('hidden', !canRelog);
-    if (canRelog) loadTeam();
-  }
+  // Team leads and admins can trigger a re-log and assign transfers for teammates
+  const canManage = u.role === 'lead' || u.role === 'admin';
+  const teamPanel = $('team-panel'), assignPanel = $('assign-panel');
+  if (teamPanel) teamPanel.classList.toggle('hidden', !canManage);
+  if (assignPanel) assignPanel.classList.toggle('hidden', !canManage);
+  if (canManage) loadTeam();
 }
 
 async function loadTeam() {
@@ -338,15 +351,24 @@ async function loadTeam() {
     const { members } = await api('teamRoster');
     const me = $('whoami').textContent.toLowerCase();
     const others = members.filter(m => m.email !== me);
+
     $('team-empty').classList.toggle('hidden', others.length > 0);
     $('team-body').innerHTML = others.map(m => `
       <tr>
-        <td>${escapeHtml(m.name)}${m.role ? ` <span class="tag" style="color:${m.role === 'admin' ? 'var(--gold)' : 'var(--green-lit)'}">${m.role}</span>` : ''}</td>
+        <td>${escapeHtml(m.name)}${roleTag(m.role)}</td>
         <td class="${m.submittedToday ? 'pos' : 'muted'}">${m.submittedToday ? 'Logged today' : 'Not yet'}</td>
         <td class="num">${m.submittedToday
           ? `<button class="btn btn-sm" data-relog="${escapeHtml(m.email)}">Re-log</button>`
           : ''}</td>
       </tr>`).join('');
+
+    const picker = $('assign-email');
+    if (picker) {
+      const keep = picker.value;
+      picker.innerHTML = others.map(m =>
+        `<option value="${escapeHtml(m.email)}">${escapeHtml(m.name)}${m.role ? ' (' + (ROLE_LABEL[m.role] || m.role) + ')' : ''} — ${escapeHtml(m.email)}</option>`).join('');
+      if (keep) picker.value = keep;
+    }
   } catch (err) {
     $('team-empty').textContent = err.message;
     $('team-empty').classList.remove('hidden');
@@ -516,6 +538,29 @@ on('team-body', 'click', async (e) => {
     loadTeam();
   } catch (err) {
     say($('msg'), err.message, 'bad');
+    e.target.disabled = false;
+  }
+});
+
+on('assign-go', 'click', async (e) => {
+  const email = $('assign-email').value;
+  const transfers = Math.floor(Number($('assign-transfers').value)) || 0;
+  const occs = Math.floor(Number($('assign-occs').value)) || 0;
+  if (!email) return say($('msg'), 'Pick a teammate first.', 'bad');
+  if (!transfers && !occs) return say($('msg'), 'Enter transfers or OCCs to assign.', 'bad');
+
+  e.target.disabled = true;
+  say($('msg'), '');
+  try {
+    const r = await api('assignStats', { email, transfers, occs, note: $('assign-note').value });
+    say($('msg'), `Assigned to ${email} — ${r.earned} spin${r.earned === 1 ? '' : 's'} granted.`, 'good');
+    $('assign-transfers').value = '';
+    $('assign-occs').value = '';
+    $('assign-note').value = '';
+    loadTeam();
+  } catch (err) {
+    say($('msg'), err.message, 'bad');
+  } finally {
     e.target.disabled = false;
   }
 });
