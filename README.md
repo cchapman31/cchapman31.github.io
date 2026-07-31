@@ -19,9 +19,10 @@ signed in yet, and re-assigning changes an existing person's role.
 
 - **Member** (no role) — signs in, logs their own transfers and OCCs, spins.
 - **SDR** — same as a member: logs their own transfers and OCCs to earn spins.
-- **Sales** / **Service** — do **not** log their own stats. A Team Lead or Admin assigns
-  their transfers (and OCCs), which grant spins by the usual rule. Their wheel page shows a
-  "your transfers are assigned for you" note instead of the stat-entry card.
+- **Sales** / **Service** — a stripped-down view: **only their bank slip**, no wheel and no
+  mention of transfers or stats at all. They see their balance, baseballs, and MVP awards and
+  nothing else. Rewards reach them through what a Team Lead or Admin grants (bucks, baseballs,
+  MVP awards).
 - **Team Lead** — logs their own stats and spins, plus a **Your team** panel and an
   **Assign transfers** panel on the wheel page: re-log a teammate, or post transfers/OCCs to
   Sales and Service people.
