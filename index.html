@@ -44,10 +44,10 @@
 <main id="app" class="hidden">
   <div id="msg" class="notice"></div>
 
-  <div class="floor">
+  <div class="floor" id="floor">
     <!-- left: stats + note + ledger -->
     <div>
-      <p class="eyebrow">Daily stats</p>
+      <p class="eyebrow" id="stats-eyebrow">Daily stats</p>
 
       <section class="stats-card" id="stats-card">
         <div id="stats-entry">
@@ -76,7 +76,7 @@
         </div>
       </section>
 
-      <p class="eyebrow" style="margin-top:34px">Your bank</p>
+      <p class="eyebrow" id="bank-eyebrow" style="margin-top:34px">Your bank</p>
 
       <div class="note">
         <div class="note-top">
@@ -109,7 +109,7 @@
         <div class="stamp" id="stamp">Deposited</div>
       </div>
 
-      <section class="ledger">
+      <section class="ledger" id="deposit-history">
         <h2>Deposit history</h2>
         <table>
           <thead><tr>
@@ -146,7 +146,7 @@
     </div>
 
     <!-- right: the wheel -->
-    <div class="stage">
+    <div class="stage" id="stage">
       <p class="eyebrow">The wheel</p>
       <div class="wheel-wrap">
         <svg class="pointer" width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
