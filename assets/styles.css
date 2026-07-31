@@ -130,6 +130,10 @@ label {
 .floor { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 420px); gap: clamp(28px, 5vw, 56px); align-items: start; }
 @media (max-width: 880px) { .floor { grid-template-columns: 1fr; } .floor .stage { order: -1; } }
 
+/* Sales/Service see only their bank slip — no wheel, no stats, no transfers */
+.floor.bank-only { grid-template-columns: minmax(0, 520px); justify-content: center; }
+.floor.bank-only .stage { display: none; }
+
 /* wheel */
 .stage { text-align: center; }
 .wheel-wrap { position: relative; width: min(100%, 380px); margin: 0 auto; aspect-ratio: 1; }

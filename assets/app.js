@@ -335,8 +335,17 @@ function applySession(data) {
   spinsReady = u.spinsAvailable;
   confettiIntensity = data.confettiIntensity ?? 60;
 
-  renderStats(data);
-  updateSpinButton();
+  // Sales and Service see only their bank slip — no wheel, no stats, no transfers
+  const bankOnly = u.role === 'sales' || u.role === 'service';
+  $('floor').classList.toggle('bank-only', bankOnly);
+  ['stats-eyebrow', 'stats-card', 'deposit-history'].forEach(id => {
+    const el = $(id); if (el) el.classList.toggle('hidden', bankOnly);
+  });
+
+  if (!bankOnly) {
+    renderStats(data);
+    updateSpinButton();
+  }
 
   // Team leads and admins can trigger a re-log and assign transfers for teammates
   const canManage = u.role === 'lead' || u.role === 'admin';
