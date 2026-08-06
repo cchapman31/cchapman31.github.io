@@ -3,7 +3,7 @@
 A prize wheel for the Top Farmers Agent team. Members sign in with their work Google
 account, **log their daily stats to earn spins**, then spin for $5, $10 or $20 in CIA Bucks
 that land in a bank they can watch grow. Members can also earn **Home Run Award baseballs**,
-handed out by an admin — 3 baseballs equal $2,500 toward an experience. Admins can move
+handed out by an admin — 3 baseballs equal $2,000 toward an experience. Admins can move
 bucks and baseballs, add other admins, tune the odds, and review everyone's stats.
 
 - **Front end** — plain HTML/CSS/JS on GitHub Pages (`index.html` for members,
@@ -42,7 +42,7 @@ Two separate hand-granted honors sit on the member's bank slip, both distinct fr
 (which are the wheel currency in their bank balance):
 
 - **Baseballs (Home Run Awards)** — shown as baseball icons, grouped in threes with each
-  completed trio boxed together. Every 3 baseballs is $2,500 toward an experience.
+  completed trio boxed together. Every 3 baseballs is $2,000 toward an experience.
 - **MVP awards** — shown as trophy icons. Each MVP is worth $300 toward an experience.
 
 Admins grant either one by hand from the **Award baseballs** / **Award MVP** panels on the
