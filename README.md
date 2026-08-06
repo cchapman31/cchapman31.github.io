@@ -19,13 +19,14 @@ signed in yet, and re-assigning changes an existing person's role.
 
 - **Member** (no role) — signs in, logs their own transfers and OCCs, spins.
 - **SDR** — same as a member: logs their own transfers and OCCs to earn spins.
-- **Sales** / **Service** — a stripped-down view: **only their bank slip**, no wheel and no
-  mention of transfers or stats at all. They see their balance, baseballs, and MVP awards and
-  nothing else. Rewards reach them through what a Team Lead or Admin grants (bucks, baseballs,
-  MVP awards).
-- **Team Lead** — logs their own stats and spins, plus a **Your team** panel and an
-  **Assign transfers** panel on the wheel page: re-log a teammate, or post transfers/OCCs to
-  Sales and Service people.
+- **Sales** — a stripped-down view: **only their bank slip**, no wheel and no mention of
+  transfers or stats. They see their balance, baseballs, and MVP awards. Rewards reach them
+  through what a Team Lead or Admin grants (bucks, baseballs, MVP awards).
+- **Service** — keeps the wheel and can spin, but **earns spins only from points** a Team
+  Lead or Admin awards by hand (each point = one spin). They don't log their own stats; their
+  stat card just explains that points from their lead become spins.
+- **Team Lead** — logs their own stats and spins, plus a **Your team** panel (re-log a
+  teammate) and an **Award points** panel (give points/spins to Service) on the wheel page.
 - **Admin** — full access to the Admin and Transactions pages, and everything a lead can do.
 
 The owner (`cody@insurancesaleslab.com`) is always an admin and can't be removed. Anyone with
