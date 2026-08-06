@@ -71,8 +71,8 @@
           <p class="fineprint">New stats unlock tomorrow. Spend your spins on the wheel.</p>
         </div>
         <div id="stats-locked" class="hidden">
-          <p class="done-lead">Your transfers are assigned for you.</p>
-          <p class="fineprint">A team lead posts your transfers. Spins land here as soon as they're assigned — just watch the wheel.</p>
+          <p class="done-lead">Spins are awarded by your team lead.</p>
+          <p class="fineprint">Your team lead gives you points, and each one becomes a spin. Spend them on the wheel whenever they land.</p>
         </div>
       </section>
 
@@ -132,15 +132,14 @@
         <p id="team-empty" class="empty hidden">No teammates have signed in yet.</p>
       </section>
 
-      <section class="ledger hidden" id="assign-panel">
-        <h2>Assign transfers</h2>
-        <p class="fineprint" style="margin-top:-6px">Post transfers and OCCs to a teammate — used for Sales and Service, who don't log their own. Spins are granted by the usual rule (20 transfers = 1 spin, +1 each after; each OCC = 1 spin).</p>
-        <div class="assign-grid">
-          <select id="assign-email"></select>
-          <input id="assign-transfers" type="number" min="0" step="1" inputmode="numeric" placeholder="Transfers">
-          <input id="assign-occs" type="number" min="0" step="1" inputmode="numeric" placeholder="OCCs">
-          <input id="assign-note" placeholder="Reason (optional)">
-          <button id="assign-go" class="btn btn-solid">Assign</button>
+      <section class="ledger hidden" id="points-panel">
+        <h2>Award points</h2>
+        <p class="fineprint" style="margin-top:-6px">Give points to a teammate — mainly Service, whose spins come only from points. Each point is one spin. Negative removes points.</p>
+        <div class="points-grid">
+          <select id="points-email"></select>
+          <input id="points-amount" type="number" step="1" inputmode="numeric" placeholder="Points (e.g. 3 or -1)">
+          <input id="points-note" placeholder="Reason (optional)">
+          <button id="points-go" class="btn btn-solid">Award points</button>
         </div>
       </section>
     </div>
