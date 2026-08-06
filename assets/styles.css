@@ -259,12 +259,8 @@ label {
 .done-grid dd { margin: 0; font-family: var(--display); font-weight: 700; font-size: 28px; line-height: 1; }
 .done-grid dd.lit { color: var(--gold-lit); }
 
-.assign-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px;
-}
-.assign-grid #assign-email { grid-column: 1 / -1; }
-.assign-grid #assign-note { grid-column: 1 / -1; }
-.assign-grid #assign-go { grid-column: 1 / -1; }
+.points-grid { display: grid; gap: 10px; margin-top: 4px; }
+.points-grid > * { width: 100%; }
 
 .spins-ready {
   margin-top: 22px; font-family: var(--mono); font-size: 12px; letter-spacing: .12em;

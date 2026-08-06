@@ -6,7 +6,9 @@ const LABELS = { spin: 'Wheel spin', credit: 'Manual credit', debit: 'Manual deb
                  'role-set': 'Role assigned', 'role-remove': 'Role removed', config: 'Setting changed',
                  stats: 'Stats logged', 'stats-reset': 'Stat lock cleared',
                  'baseball-add': 'Baseball added', 'baseball-remove': 'Baseball removed',
-                 'mvp-add': 'MVP added', 'mvp-remove': 'MVP removed' };
+                 'mvp-add': 'MVP added', 'mvp-remove': 'MVP removed',
+                 'points-add': 'Points awarded', 'points-remove': 'Points removed',
+                 'stats-assign': 'Transfers assigned' };
 
 let state = { users: [], roles: [], config: {}, today: '' };
 

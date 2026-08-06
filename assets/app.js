@@ -254,7 +254,7 @@ function updateSpinButton() {
   } else {
     btn.disabled = true;
     status.textContent = !canSelfLog
-      ? 'Spins arrive when your lead assigns transfers'
+      ? 'Your team lead awards your spins'
       : submittedToday
         ? 'Out of spins — log stats again tomorrow'
         : "Log today's stats to earn spins";
@@ -335,10 +335,12 @@ function applySession(data) {
   spinsReady = u.spinsAvailable;
   confettiIntensity = data.confettiIntensity ?? 60;
 
-  // Sales and Service see only their bank slip — no wheel, no stats, no transfers
-  const bankOnly = u.role === 'sales' || u.role === 'service';
+  // Sales see only their bank slip (no wheel). Service keep the wheel but don't self-log.
+  const bankOnly = u.role === 'sales';
   $('floor').classList.toggle('bank-only', bankOnly);
-  ['stats-eyebrow', 'stats-card', 'deposit-history'].forEach(id => {
+  const statsEye = $('stats-eyebrow');
+  if (statsEye) statsEye.classList.toggle('hidden', !canSelfLog);   // hide "Daily stats" label for sales+service
+  ['stats-card', 'deposit-history'].forEach(id => {
     const el = $(id); if (el) el.classList.toggle('hidden', bankOnly);
   });
 
@@ -347,11 +349,11 @@ function applySession(data) {
     updateSpinButton();
   }
 
-  // Team leads and admins can trigger a re-log and assign transfers for teammates
+  // Team leads and admins can re-log teammates and award points
   const canManage = u.role === 'lead' || u.role === 'admin';
-  const teamPanel = $('team-panel'), assignPanel = $('assign-panel');
+  const teamPanel = $('team-panel'), pointsPanel = $('points-panel');
   if (teamPanel) teamPanel.classList.toggle('hidden', !canManage);
-  if (assignPanel) assignPanel.classList.toggle('hidden', !canManage);
+  if (pointsPanel) pointsPanel.classList.toggle('hidden', !canManage);
   if (canManage) loadTeam();
 }
 
@@ -371,7 +373,7 @@ async function loadTeam() {
           : ''}</td>
       </tr>`).join('');
 
-    const picker = $('assign-email');
+    const picker = $('points-email');
     if (picker) {
       const keep = picker.value;
       picker.innerHTML = others.map(m =>
@@ -551,21 +553,21 @@ on('team-body', 'click', async (e) => {
   }
 });
 
-on('assign-go', 'click', async (e) => {
-  const email = $('assign-email').value;
-  const transfers = Math.floor(Number($('assign-transfers').value)) || 0;
-  const occs = Math.floor(Number($('assign-occs').value)) || 0;
+on('points-go', 'click', async (e) => {
+  const email = $('points-email').value;
+  const points = Math.round(Number($('points-amount').value));
   if (!email) return say($('msg'), 'Pick a teammate first.', 'bad');
-  if (!transfers && !occs) return say($('msg'), 'Enter transfers or OCCs to assign.', 'bad');
+  if (!points) return say($('msg'), 'Enter a number of points to award or remove.', 'bad');
 
   e.target.disabled = true;
   say($('msg'), '');
   try {
-    const r = await api('assignStats', { email, transfers, occs, note: $('assign-note').value });
-    say($('msg'), `Assigned to ${email} — ${r.earned} spin${r.earned === 1 ? '' : 's'} granted.`, 'good');
-    $('assign-transfers').value = '';
-    $('assign-occs').value = '';
-    $('assign-note').value = '';
+    const r = await api('assignPoints', { email, points, note: $('points-note').value });
+    say($('msg'), points > 0
+      ? `Awarded ${points} point${points === 1 ? '' : 's'} to ${email} — ${points} spin${points === 1 ? '' : 's'} added.`
+      : `Removed ${-points} point${points === -1 ? '' : 's'} from ${email}.`, 'good');
+    $('points-amount').value = '';
+    $('points-note').value = '';
     loadTeam();
   } catch (err) {
     say($('msg'), err.message, 'bad');
