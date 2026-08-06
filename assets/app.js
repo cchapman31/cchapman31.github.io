@@ -185,7 +185,7 @@ function renderBaseballs(count) {
     if (wrap) wrap.classList.add('empty');
     if (countEl) countEl.textContent = 'None yet';
     host.innerHTML = set([false, false, false]);
-    cap.textContent = 'Earn 3 for a $2,500 experience';
+    cap.textContent = 'Earn 3 for a $2,000 experience';
     return;
   }
 
@@ -201,12 +201,12 @@ function renderBaseballs(count) {
   if (count > MAX) html += `<span class="awards-more">+${count - MAX}</span>`;
   host.innerHTML = html;
 
-  const unlocked = Math.floor(count / 3) * 2500;
+  const unlocked = Math.floor(count / 3) * 2000;
   const rem = count % 3;
   const toNext = rem === 0 ? 3 : 3 - rem;
   cap.textContent = unlocked > 0
-    ? `${money(unlocked)} unlocked · ${toNext} more for the next $2,500`
-    : `${toNext} more baseball${toNext === 1 ? '' : 's'} for a $2,500 experience`;
+    ? `${money(unlocked)} unlocked · ${toNext} more for the next $2,000`
+    : `${toNext} more baseball${toNext === 1 ? '' : 's'} for a $2,000 experience`;
 }
 
 function renderMvps(count) {
